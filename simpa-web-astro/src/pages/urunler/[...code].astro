@@ -94,17 +94,19 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
   <div class="prod-wrap"><div class="prod-in">
     <div class="prod-gallery">
       {primaryImage && (
-        <div class="gallery-main">
-          <img src={primaryImage.file_url} alt={title} />
+        <div class="gallery-main" id="galleryMain">
+          <img src={primaryImage.file_url} alt={title} id="galleryMainImg" data-full={primaryImage.file_url} />
           {certLine && <span class="gallery-badge">{certLine}</span>}
         </div>
       )}
       {galleryImages.length > 1 && (
-        <div class="gallery-thumbs">
-          {galleryImages.map((img) => (
+        <div class="gallery-thumbs" id="galleryThumbs">
+          {galleryImages.map((img, i) => (
             <img
               src={img.file_url}
               alt={img.is_drawing ? `${title} — Teknik Çizim` : title}
+              data-full={img.file_url}
+              class={i === 0 ? 'active' : ''}
               style={`width:64px;height:64px;object-fit:contain;border-radius:6px;border:1px solid var(--g200);cursor:pointer${img.is_drawing ? ';background:var(--g50);padding:4px' : ''}`}
             />
           ))}
@@ -228,10 +230,17 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
   </div>
 
   <div class="m-prod-gal">
-    <div class="m-gal-main">
-      {primaryImage && <img src={primaryImage.file_url} alt={title} />}
+    <div class="m-gal-main" id="mGalleryMain">
+      {primaryImage && <img src={primaryImage.file_url} alt={title} id="mGalleryMainImg" data-full={primaryImage.file_url} />}
       {certLine && <span class="m-gal-badge">{certLine}</span>}
     </div>
+    {galleryImages.length > 1 && (
+      <div class="m-gal-thumbs" id="mGalleryThumbs">
+        {galleryImages.map((img, i) => (
+          <img src={img.file_url} alt={img.is_drawing ? `${title} — Teknik Çizim` : title} data-full={img.file_url} class={i === 0 ? 'active' : ''} />
+        ))}
+      </div>
+    )}
   </div>
 
   <div class="m-prod-info">
@@ -265,8 +274,19 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
         <div class="diag-area mode-fixed" id="mDiagArea">
           {drawingUrl && <div class="diag-sticky-el" id="mDiagSticky"><img src={drawingUrl} alt="Teknik Çizim" /><div class="diag-cap">Teknik Referans Çizimi</div></div>}
           <div class="diag-table-host">
+            {filterOptions.length > 0 && (
+              <div class="m-filter-row">
+                {filterOptions.map((f) => (
+                  <select class="m-filter-sel" data-mfilter-key={f.attr_key}>
+                    <option value="">{`Tüm ${f.label}`}</option>
+                    {f.values.map((v) => <option value={v}>{v}</option>)}
+                  </select>
+                ))}
+              </div>
+            )}
+            <div id="mVariantCards">
             {variantTable.rows.map((row) => (
-              <div class="row-card">
+              <div class="row-card" data-mfilters={JSON.stringify(Object.fromEntries(filterOptions.map((f) => [f.attr_key, row.values[f.attr_key] || ''])))}>
                 <div class="rc-hdr">
                   <span class="rc-code">{row.variant_code}</span>
                   {(row.values['CIVATA'] || row.values['KABLO_KESITI']) && <span class="rc-bolt">{[row.values['CIVATA'], row.values['KABLO_KESITI'] && `${row.values['KABLO_KESITI']} mm²`].filter(Boolean).join(' · ')}</span>}
@@ -278,6 +298,7 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
                 </div>
               </div>
             ))}
+            </div>
           </div>
         </div>
       </div>
@@ -311,9 +332,13 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
     </div>
   )}
 </div>
+<div class="img-lightbox" id="imgLightbox">
+  <button class="img-lightbox-close" id="imgLightboxClose">✕</button>
+  <img src="" alt="" id="imgLightboxImg" />
+</div>
 </Layout>
 
-<script>
+<script define:vars={{ productBrand: product.brand || '' }}>
   // Masaüstü sekme geçişi
   document.querySelectorAll('.tab-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -351,8 +376,78 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
     });
   });
 
-  // Belgeler: genel dokümanları API'den çek, hem masaüstü hem mobil listeye yaz
-  fetch('/api/documents')
+  // Varyant kartları filtreleme (mobil)
+  document.querySelectorAll('.m-filter-sel').forEach((sel) => {
+    sel.addEventListener('change', () => {
+      const active = {};
+      document.querySelectorAll('.m-filter-sel').forEach((s) => {
+        if (s.value) active[s.dataset.mfilterKey] = s.value;
+      });
+      document.querySelectorAll('#mVariantCards .row-card').forEach((card) => {
+        const rowFilters = JSON.parse(card.dataset.mfilters || '{}');
+        const match = Object.entries(active).every(([k, v]) => rowFilters[k] === v);
+        card.style.display = match ? '' : 'none';
+      });
+    });
+  });
+
+  // Galeri: küçük resme tıklayınca büyük resmi (hem masaüstü hem mobil) değiştir
+  function setActiveThumb(container, clicked) {
+    container.querySelectorAll('img').forEach((i) => i.classList.remove('active'));
+    clicked.classList.add('active');
+  }
+  document.querySelectorAll('#galleryThumbs img').forEach((thumb) => {
+    thumb.addEventListener('click', () => {
+      const full = thumb.dataset.full;
+      const dMain = document.getElementById('galleryMainImg');
+      const mMain = document.getElementById('mGalleryMainImg');
+      if (dMain) dMain.src = full;
+      if (mMain) mMain.src = full;
+      setActiveThumb(document.getElementById('galleryThumbs'), thumb);
+      const mThumb = document.querySelector(`#mGalleryThumbs img[data-full="${full}"]`);
+      if (mThumb) setActiveThumb(document.getElementById('mGalleryThumbs'), mThumb);
+    });
+  });
+  document.querySelectorAll('#mGalleryThumbs img').forEach((thumb) => {
+    thumb.addEventListener('click', () => {
+      const full = thumb.dataset.full;
+      const dMain = document.getElementById('galleryMainImg');
+      const mMain = document.getElementById('mGalleryMainImg');
+      if (dMain) dMain.src = full;
+      if (mMain) mMain.src = full;
+      setActiveThumb(document.getElementById('mGalleryThumbs'), thumb);
+      const dThumb = document.querySelector(`#galleryThumbs img[data-full="${full}"]`);
+      if (dThumb) setActiveThumb(document.getElementById('galleryThumbs'), dThumb);
+    });
+  });
+
+  // Galeri: büyük resme (ya da teknik çizime) tıklayınca lightbox aç
+  const lightbox = document.getElementById('imgLightbox');
+  const lightboxImg = document.getElementById('imgLightboxImg');
+  function openLightbox(src, alt) {
+    lightboxImg.src = src;
+    lightboxImg.alt = alt || '';
+    lightbox.classList.add('open');
+  }
+  document.getElementById('galleryMain')?.addEventListener('click', () => {
+    const img = document.getElementById('galleryMainImg');
+    openLightbox(img.src, img.alt);
+  });
+  document.getElementById('mGalleryMain')?.addEventListener('click', () => {
+    const img = document.getElementById('mGalleryMainImg');
+    openLightbox(img.src, img.alt);
+  });
+  document.querySelectorAll('.diag-sticky-el img').forEach((img) => {
+    img.style.cursor = 'zoom-in';
+    img.addEventListener('click', () => openLightbox(img.src, img.alt));
+  });
+  document.getElementById('imgLightboxClose')?.addEventListener('click', () => lightbox.classList.remove('open'));
+  lightbox?.addEventListener('click', (e) => {
+    if (e.target === lightbox) lightbox.classList.remove('open');
+  });
+
+  // Belgeler: markaya göre filtrelenmiş dokümanları API'den çek, hem masaüstü hem mobil listeye yaz
+  fetch('/api/documents?brand=' + encodeURIComponent(productBrand))
     .then((r) => r.json())
     .then((docs) => {
       const html = !docs.length
