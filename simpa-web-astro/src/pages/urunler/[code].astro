@@ -1,5 +1,5 @@
 ---
-// src/pages/urunler/[code].astro
+// src/pages/urunler/[...code].astro
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
@@ -14,6 +14,7 @@ import {
   getVariantTable,
   getCompatibleProducts,
   getRelatedProducts,
+  getKunyeRanges,
 } from '../../lib/queries.js';
 
 import { env } from 'cloudflare:workers';
@@ -27,7 +28,7 @@ if (!product) {
   return new Response('Ürün bulunamadı', { status: 404 });
 }
 
-const [specs, description, specialNote, drawingUrl, images, certificates, compatible, related] = await Promise.all([
+const [specsRaw, description, specialNote, drawingUrl, images, certificates, compatible, related] = await Promise.all([
   getProductSpecs(db, product.id, lang),
   getProductDescription(db, product.id, lang),
   getSpecialNote(db, product.id, lang),
@@ -39,8 +40,9 @@ const [specs, description, specialNote, drawingUrl, images, certificates, compat
 ]);
 
 let variantTable = { columns: [], rows: [] };
+let kunyeRanges = [];
 if (product.has_variant_table) {
-  variantTable = await getVariantTable(db, product.id, lang);
+  [variantTable, kunyeRanges] = await Promise.all([getVariantTable(db, product.id, lang), getKunyeRanges(db, product.id, lang)]);
 }
 
 const boyutCols = variantTable.columns.filter((c) => c.group_key === 'boyut');
@@ -62,8 +64,26 @@ const galleryImages = drawingUrl ? [...images, { file_url: drawingUrl, is_primar
 const primaryImage = images.find((i) => i.is_primary) || images[0] || galleryImages[0];
 const title = lang === 'en' ? product.title_en : product.title_tr;
 const categoryName = lang === 'en' ? product.category_name_en : product.category_name_tr;
+const certLine = certificates.map((c) => c.tag).join(' · ');
+
+// Künye: TR/EN etiketleri çözülmüş, aralıklarla (Kablo Kesiti/Civata) birleştirilmiş liste
+const specsResolved = specsRaw.map((s) => ({ attr_key: s.attr_key, label: lang === 'en' ? s.label_en : s.label_tr, value: s.value }));
+const allSpecs = [...specsResolved.slice(0, 3), ...kunyeRanges, ...specsResolved.slice(3)];
+const bySpecKey = Object.fromEntries(specsResolved.map((s) => [s.attr_key, s]));
+const byRangeKey = Object.fromEntries(kunyeRanges.map((r) => [r.attr_key, r]));
+const quickItems = [
+  bySpecKey['MATERYAL'],
+  bySpecKey['KAPLAMA'],
+  byRangeKey['KABLO_KESITI'] && { label: lang === 'en' ? 'Section' : 'Kesit', value: byRangeKey['KABLO_KESITI'].value },
+  byRangeKey['CIVATA'],
+].filter(Boolean);
+
+const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...related.map((r) => ({ ...r, isCompatible: false }))];
 ---
 <Layout title={`${title} — Simpa Elektrik`} lang={lang}>
+
+<!-- ══════════ MASAÜSTÜ ══════════ -->
+<div class="desktop-only">
   <div class="bc"><div class="bc-in">
     <a href="/">Ana Sayfa</a><span>›</span>
     <a href={`/kategori/${product.category_slug}`}>Ürünlerimiz</a><span>›</span>
@@ -73,14 +93,18 @@ const categoryName = lang === 'en' ? product.category_name_en : product.category
 
   <div class="prod-wrap"><div class="prod-in">
     <div class="prod-gallery">
-      {primaryImage && <img src={primaryImage.file_url} alt={title} style="width:100%;border-radius:10px" />}
+      {primaryImage && (
+        <div class="gallery-main">
+          <img src={primaryImage.file_url} alt={title} />
+          {certLine && <span class="gallery-badge">{certLine}</span>}
+        </div>
+      )}
       {galleryImages.length > 1 && (
         <div class="gallery-thumbs">
           {galleryImages.map((img) => (
             <img
               src={img.file_url}
               alt={img.is_drawing ? `${title} — Teknik Çizim` : title}
-              title={img.is_drawing ? 'Teknik Çizim' : undefined}
               style={`width:64px;height:64px;object-fit:contain;border-radius:6px;border:1px solid var(--g200);cursor:pointer${img.is_drawing ? ';background:var(--g50);padding:4px' : ''}`}
             />
           ))}
@@ -93,54 +117,44 @@ const categoryName = lang === 'en' ? product.category_name_en : product.category
       <h1 class="prod-title">{title}</h1>
       <div class="prod-code">{product.prod_code}</div>
 
-      {specs.length > 0 && (
+      {allSpecs.length > 0 && (
         <div class="prod-specs">
-          {specs.map((s) => (
-            <div><div class="spec-lbl">{lang === 'en' ? s.label_en : s.label_tr}</div><div class="spec-val">{s.value}</div></div>
+          {allSpecs.map((s) => (
+            <div><div class="spec-lbl">{s.label}</div><div class="spec-val">{s.value}</div></div>
           ))}
         </div>
       )}
 
-      {specialNote && (
-        <div class="special-note" style="background:#FFF8E6;border:1px solid #E0B341;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#8a6d1f;margin-top:12px">
-          {specialNote}
-        </div>
-      )}
+      {specialNote && <div class="special-note" style="background:#FFF8E6;border:1px solid #E0B341;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#8a6d1f;margin-top:12px">{specialNote}</div>}
 
       <div class="prod-actions">
-        <a href="#" class="btn-ask">✉ {lang === 'en' ? 'Quote / Ask' : 'Teklif / Soru Sor'}</a>
-        <a href="/belgeler" class="btn-cat">📄 {lang === 'en' ? 'Catalog' : 'Katalog'}</a>
+        <a href="#" class="btn-ask">✉ Teklif / Soru Sor</a>
+        <a href="/belgeler" class="btn-cat">📄 Katalog</a>
         <a href="#" class="btn-wp">💬 WA</a>
       </div>
 
-      {certificates.length > 0 && (
-        <div class="cert-row">
-          {certificates.map((c) => <span class="cert-tag">{c.tag}</span>)}
-        </div>
-      )}
+      {certificates.length > 0 && <div class="cert-row">{certificates.map((c) => <span class="cert-tag">{c.tag}</span>)}</div>}
     </div>
   </div></div>
 
   <div class="tabs-wrap">
     <div class="tabs-nav">
-      {product.has_variant_table === 1 && <button class="tab-btn on" data-tab="tech">{lang === 'en' ? 'Technical Data' : 'Teknik Veriler'}</button>}
-      {description && <button class={`tab-btn ${product.has_variant_table !== 1 ? 'on' : ''}`} data-tab="desc">{lang === 'en' ? 'Description' : 'Ürün Açıklaması'}</button>}
-      <button class={`tab-btn ${product.has_variant_table !== 1 && !description ? 'on' : ''}`} data-tab="docs">{lang === 'en' ? 'Documents' : 'Belgeler'}</button>
+      {product.has_variant_table === 1 && <button class="tab-btn on" data-tab="tech">Teknik Veriler</button>}
+      {description && <button class={`tab-btn ${product.has_variant_table !== 1 ? 'on' : ''}`} data-tab="desc">Ürün Açıklaması</button>}
+      <button class={`tab-btn ${product.has_variant_table !== 1 && !description ? 'on' : ''}`} data-tab="docs">Belgeler</button>
     </div>
 
     {product.has_variant_table === 1 && (
       <div id="tab-tech" class="tab-pane on">
         <div class="diag-area mode-fixed">
-          {drawingUrl && (
-            <div class="diag-sticky-el"><img src={drawingUrl} alt="Teknik Çizim" /><div class="diag-cap">{lang === 'en' ? 'Technical Reference Drawing' : 'Teknik Referans Çizimi'}</div></div>
-          )}
+          {drawingUrl && <div class="diag-sticky-el"><img src={drawingUrl} alt="Teknik Çizim" /><div class="diag-cap">Teknik Referans Çizimi</div></div>}
           <div class="diag-table-host">
             {filterOptions.length > 0 && (
               <div class="filter-row">
-                <span class="filter-lbl">{lang === 'en' ? 'Filter:' : 'Filtrele:'}</span>
+                <span class="filter-lbl">Filtrele:</span>
                 {filterOptions.map((f) => (
                   <select class="filter-sel" data-filter-key={f.attr_key}>
-                    <option value="">{lang === 'en' ? `All ${f.label}` : `Tüm ${f.label}`}</option>
+                    <option value="">{`Tüm ${f.label}`}</option>
                     {f.values.map((v) => <option value={v}>{v}</option>)}
                   </select>
                 ))}
@@ -150,7 +164,7 @@ const categoryName = lang === 'en' ? product.category_name_en : product.category
               <table class="tbl" id="variantTbl">
                 <thead>
                   <tr>
-                    <th>{lang === 'en' ? 'Product Code' : 'Ürün Kodu'}</th>
+                    <th>Ürün Kodu</th>
                     {displayCols.map((c) => <th style="text-align:right">{c.label}{c.unit ? ` (${c.unit})` : ''}</th>)}
                   </tr>
                 </thead>
@@ -177,25 +191,21 @@ const categoryName = lang === 'en' ? product.category_name_en : product.category
 
     <div id="tab-docs" class={`tab-pane ${product.has_variant_table !== 1 && !description ? 'on' : ''}`}>
       <div style="display:flex;flex-direction:column;gap:9px;max-width:460px" id="docsList">
-        <p style="font-size:13px;color:var(--g400)">{lang === 'en' ? 'Loading…' : 'Yükleniyor…'}</p>
+        <p style="font-size:13px;color:var(--g400)">Yükleniyor…</p>
       </div>
     </div>
   </div>
 
   {compatible.length > 0 && (
     <div class="rel-sec"><div class="rel-in">
-      <div class="rel-title">{lang === 'en' ? 'Compatible Products' : 'Uyumlu Ürünler'}</div>
-      <div class="rel-grid">
-        {compatible.map((c) => (
-          <a href={`/urunler/${c.prod_code}`} class="rel-card"><div class="rel-card-name">{c.title}</div></a>
-        ))}
-      </div>
+      <div class="rel-title">Uyumlu Ürünler</div>
+      <div class="rel-grid">{compatible.map((c) => <a href={`/urunler/${c.prod_code}`} class="rel-card"><div class="rel-card-name">{c.title}</div></a>)}</div>
     </div></div>
   )}
 
   {related.length > 0 && (
     <div class="rel-sec"><div class="rel-in">
-      <div class="rel-title">{lang === 'en' ? 'Other Products In This Category' : 'Bu Kategorideki Diğer Ürünler'}</div>
+      <div class="rel-title">Bu Kategorideki Diğer Ürünler</div>
       <div class="rel-grid">
         {related.map((r) => (
           <a href={`/urunler/${r.prod_code}`} class="rel-card">
@@ -206,21 +216,127 @@ const categoryName = lang === 'en' ? product.category_name_en : product.category
       </div>
     </div></div>
   )}
+</div>
+
+<!-- ══════════ MOBİL ══════════ -->
+<div class="mobile-only">
+  <div class="m-bc">
+    <a href="/">Ana Sayfa</a><span>›</span>
+    <a href={`/kategori/${product.category_slug}`}>Ürünler</a><span>›</span>
+    <a href={`/kategori/${product.category_slug}`}>{categoryName}</a><span>›</span>
+    <span style="color:var(--g800)">{product.prod_code}</span>
+  </div>
+
+  <div class="m-prod-gal">
+    <div class="m-gal-main">
+      {primaryImage && <img src={primaryImage.file_url} alt={title} />}
+      {certLine && <span class="m-gal-badge">{certLine}</span>}
+    </div>
+  </div>
+
+  <div class="m-prod-info">
+    <div class="m-prod-cat">{categoryName}</div>
+    <h1 class="m-prod-title">{title}</h1>
+    <div class="m-prod-code">{product.prod_code}</div>
+
+    {quickItems.length > 0 && (
+      <div class="m-quick">
+        {quickItems.map((q) => <div><div class="m-quick-lbl">{q.label}</div><div class="m-quick-val">{q.value}</div></div>)}
+      </div>
+    )}
+
+    {specialNote && <div class="special-note" style="background:#FFF8E6;border:1px solid #E0B341;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#8a6d1f;margin-bottom:12px">{specialNote}</div>}
+
+    <div class="m-prod-btns">
+      <a href="#" class="m-btn-ask">✉ Teklif / Soru Sor</a>
+      <div class="m-btn-row"><a href="/belgeler" class="m-btn-cat">📄 Katalog</a><a href="#" class="m-btn-wp">💬 WhatsApp</a></div>
+    </div>
+  </div>
+
+  <div class="m-tabs">
+    {product.has_variant_table === 1 && <button class="m-tab on" id="mTabBtnTech" data-mtab="mtech">Teknik Veriler</button>}
+    {description && <button class={`m-tab ${product.has_variant_table !== 1 ? 'on' : ''}`} data-mtab="mdesc">Açıklama</button>}
+    <button class={`m-tab ${product.has_variant_table !== 1 && !description ? 'on' : ''}`} data-mtab="mdocs">Belgeler</button>
+  </div>
+
+  {product.has_variant_table === 1 && (
+    <div id="mtech" class="m-tab-pane on">
+      <div class="m-tbl-sec">
+        <div class="diag-area mode-fixed" id="mDiagArea">
+          {drawingUrl && <div class="diag-sticky-el" id="mDiagSticky"><img src={drawingUrl} alt="Teknik Çizim" /><div class="diag-cap">Teknik Referans Çizimi</div></div>}
+          <div class="diag-table-host">
+            {variantTable.rows.map((row) => (
+              <div class="row-card">
+                <div class="rc-hdr">
+                  <span class="rc-code">{row.variant_code}</span>
+                  {(row.values['CIVATA'] || row.values['KABLO_KESITI']) && <span class="rc-bolt">{[row.values['CIVATA'], row.values['KABLO_KESITI'] && `${row.values['KABLO_KESITI']} mm²`].filter(Boolean).join(' · ')}</span>}
+                </div>
+                <div class="rc-dims">
+                  {displayCols.filter((c) => c.attr_key !== 'CIVATA' && c.attr_key !== 'KABLO_KESITI').map((c) => (
+                    <div class="rc-dim"><div class="rc-dim-l">{c.label}</div><div class="rc-dim-v">{row.values[c.attr_key] ?? '—'}</div></div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+
+  {description && (
+    <div id="mdesc" class={`m-tab-pane ${product.has_variant_table !== 1 ? 'on' : ''}`}>
+      <div style="padding:16px;font-size:13px;color:var(--g600);line-height:1.75;white-space:pre-line">{description}</div>
+    </div>
+  )}
+
+  <div id="mdocs" class={`m-tab-pane ${product.has_variant_table !== 1 && !description ? 'on' : ''}`}>
+    <div style="padding:14px 16px;display:flex;flex-direction:column;gap:8px" id="mDocsList">
+      <p style="font-size:13px;color:var(--g400)">Yükleniyor…</p>
+    </div>
+  </div>
+
+  {relItems.length > 0 && (
+    <div class="m-rel">
+      <div class="m-rel-title">{compatible.length > 0 ? 'Uyumlu ve İlgili Ürünler' : 'Diğer Ürünler'}</div>
+      <div class="m-rel-list">
+        {relItems.map((r) => (
+          <a href={`/urunler/${r.prod_code}`} class="m-rel-item">
+            {r.image && <div class="m-rel-img"><img src={r.image} alt={r.title} /></div>}
+            <div style="flex:1"><div class="m-rel-name">{r.title}</div>{r.isCompatible && <div class="m-rel-sub">Uyumlu ürün</div>}</div>
+            <span class="m-rel-arr">›</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
 </Layout>
 
 <script>
-  // Sekme geçişi
+  // Masaüstü sekme geçişi
   document.querySelectorAll('.tab-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('on'));
-      document.querySelectorAll('.tab-pane').forEach((p) => p.classList.remove('on'));
+      document.querySelectorAll('.desktop-only .tab-pane').forEach((p) => p.classList.remove('on'));
       btn.classList.add('on');
       const pane = document.getElementById('tab-' + btn.dataset.tab);
       if (pane) pane.classList.add('on');
     });
   });
 
-  // Varyant tablosu filtreleme
+  // Mobil sekme geçişi
+  document.querySelectorAll('.m-tab').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.m-tab').forEach((b) => b.classList.remove('on'));
+      document.querySelectorAll('.m-tab-pane').forEach((p) => p.classList.remove('on'));
+      btn.classList.add('on');
+      const pane = document.getElementById(btn.dataset.mtab);
+      if (pane) pane.classList.add('on');
+    });
+  });
+
+  // Varyant tablosu filtreleme (masaüstü)
   document.querySelectorAll('.filter-sel').forEach((sel) => {
     sel.addEventListener('change', () => {
       const active = {};
@@ -235,22 +351,22 @@ const categoryName = lang === 'en' ? product.category_name_en : product.category
     });
   });
 
-  // Belgeler sekmesi: genel dokümanları API'den çek
+  // Belgeler: genel dokümanları API'den çek, hem masaüstü hem mobil listeye yaz
   fetch('/api/documents')
     .then((r) => r.json())
     .then((docs) => {
-      const list = document.getElementById('docsList');
-      if (!list) return;
-      if (!docs.length) {
-        list.innerHTML = '<p style="font-size:13px;color:var(--g400)">Belge bulunamadı.</p>';
-        return;
-      }
-      list.innerHTML = docs
-        .map(
-          (d) =>
-            `<a href="${d.file_url_tr || d.file_url_en}" style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--g50);border:1px solid var(--g200);border-radius:7px;text-decoration:none;color:var(--navy);font-size:13px;font-weight:600">📄 ${d.title_tr}<span style="margin-left:auto;font-size:11px;color:var(--blue)">↓</span></a>`
-        )
-        .join('');
+      const html = !docs.length
+        ? '<p style="font-size:13px;color:var(--g400)">Belge bulunamadı.</p>'
+        : docs
+            .map(
+              (d) =>
+                `<a href="${d.file_url_tr || d.file_url_en}" style="display:flex;align-items:center;justify-content:space-between;padding:11px 14px;background:var(--g50);border:1px solid var(--g200);border-radius:7px;text-decoration:none;color:var(--navy);font-size:13px;font-weight:600">📄 ${d.title_tr}<span style="color:var(--blue);font-size:11px">↓</span></a>`
+            )
+            .join('');
+      const desktopList = document.getElementById('docsList');
+      const mobileList = document.getElementById('mDocsList');
+      if (desktopList) desktopList.innerHTML = html;
+      if (mobileList) mobileList.innerHTML = html;
     })
     .catch(() => {});
 </script>
