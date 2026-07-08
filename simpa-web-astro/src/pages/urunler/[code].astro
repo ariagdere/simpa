@@ -57,7 +57,8 @@ const filterOptions = kunyeFiltreCols
 
 const displayCols = [...kunyeFiltreCols.filter((c) => !filterOptions.find((f) => f.attr_key === c.attr_key)), ...boyutCols, ...ekOzellikCols, ...adetAgirlikCols];
 
-const primaryImage = images.find((i) => i.is_primary) || images[0];
+const galleryImages = drawingUrl ? [...images, { file_url: drawingUrl, is_primary: 0, is_drawing: true }] : images;
+const primaryImage = images.find((i) => i.is_primary) || images[0] || galleryImages[0];
 const title = lang === 'en' ? product.title_en : product.title_tr;
 const categoryName = lang === 'en' ? product.category_name_en : product.category_name_tr;
 ---
@@ -72,10 +73,15 @@ const categoryName = lang === 'en' ? product.category_name_en : product.category
   <div class="prod-wrap"><div class="prod-in">
     <div class="prod-gallery">
       {primaryImage && <img src={primaryImage.file_url} alt={title} style="width:100%;border-radius:10px" />}
-      {images.length > 1 && (
+      {galleryImages.length > 1 && (
         <div class="gallery-thumbs">
-          {images.map((img) => (
-            <img src={img.file_url} alt={title} style="width:64px;height:64px;object-fit:contain;border-radius:6px;border:1px solid var(--g200);cursor:pointer" />
+          {galleryImages.map((img) => (
+            <img
+              src={img.file_url}
+              alt={img.is_drawing ? `${title} — Teknik Çizim` : title}
+              title={img.is_drawing ? 'Teknik Çizim' : undefined}
+              style={`width:64px;height:64px;object-fit:contain;border-radius:6px;border:1px solid var(--g200);cursor:pointer${img.is_drawing ? ';background:var(--g50);padding:4px' : ''}`}
+            />
           ))}
         </div>
       )}
