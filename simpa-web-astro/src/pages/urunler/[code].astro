@@ -16,9 +16,10 @@ import {
   getRelatedProducts,
 } from '../../lib/queries.js';
 
+import { env } from 'cloudflare:workers';
 const lang = 'tr'; // İlk sürüm: TR sabit. EN route'u ayrı bir sonraki adımda eklenecek.
 const { code } = Astro.params;
-const db = Astro.locals.runtime.env.DB;
+const db = env.DB;
 
 const product = await getProduct(db, code, lang);
 
