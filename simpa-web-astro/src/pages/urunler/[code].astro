@@ -187,7 +187,7 @@ const categoryName = lang === 'en' ? product.category_name_en : product.category
       <div class="rel-title">{lang === 'en' ? 'Compatible Products' : 'Uyumlu Ürünler'}</div>
       <div class="rel-grid">
         {compatible.map((c) => (
-          <a href={`/urunler/${c.prod_code}`} class="rel-card"><div class="rel-card-title">{c.title}</div></a>
+          <a href={`/urunler/${c.prod_code}`} class="rel-card"><div class="rel-card-name">{c.title}</div></a>
         ))}
       </div>
     </div></div>
@@ -199,8 +199,8 @@ const categoryName = lang === 'en' ? product.category_name_en : product.category
       <div class="rel-grid">
         {related.map((r) => (
           <a href={`/urunler/${r.prod_code}`} class="rel-card">
-            {r.image && <img src={r.image} alt={r.title} style="width:100%;aspect-ratio:1;object-fit:contain" />}
-            <div class="rel-card-title">{r.title}</div>
+            {r.image && <div class="rel-card-img"><img src={r.image} alt={r.title} /></div>}
+            <div class="rel-card-name">{r.title}</div>
           </a>
         ))}
       </div>
