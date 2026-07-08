@@ -1,0 +1,12 @@
+UPDATE color_translations SET color_en = 'White' WHERE color_tr = 'Beyaz';
+UPDATE color_translations SET color_en = 'Black' WHERE color_tr = 'Siyah';
+UPDATE color_translations SET color_en = 'Red' WHERE color_tr = 'Kırmızı';
+UPDATE color_translations SET color_en = 'Blue' WHERE color_tr = 'Mavi';
+UPDATE color_translations SET color_en = 'Yellow' WHERE color_tr = 'Sarı';
+UPDATE color_translations SET color_en = 'Green' WHERE color_tr = 'Yeşil';
+UPDATE color_translations SET color_en = 'Orange' WHERE color_tr = 'Turuncu';
+UPDATE color_translations SET color_en = 'Gray' WHERE color_tr = 'Gri';
+UPDATE color_translations SET color_en = 'Ivory' WHERE color_tr = 'Fildişi';
+UPDATE color_translations SET color_en = 'Brown' WHERE color_tr = 'Kahve';
+UPDATE color_translations SET color_en = 'Beige' WHERE color_tr = 'Bej';
+UPDATE color_translations SET color_en = 'Olive Green' WHERE color_tr = 'Z.Yeşili';

@@ -1,0 +1,27 @@
+---
+// src/pages/index.astro
+export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+
+const db = Astro.locals.runtime.env.DB;
+const { results: products } = await db
+  .prepare(
+    `SELECT prod_code, title_tr FROM products WHERE title_tr IS NOT NULL AND is_active = 1 ORDER BY sort_order LIMIT 12`
+  )
+  .all();
+---
+<Layout title="Simpa Elektrik">
+  <div style="max-width:1100px;margin:40px auto;padding:0 20px">
+    <h1 style="font-family:var(--cond);font-size:28px;color:var(--navy);margin-bottom:20px">
+      Ürünler (geçici liste — Faz 2 devam ediyor)
+    </h1>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px">
+      {products.map((p) => (
+        <a href={`/urunler/${p.prod_code}`} style="display:block;padding:16px;border:1px solid var(--g200);border-radius:8px;text-decoration:none;color:var(--navy);font-weight:600;background:#fff">
+          {p.title_tr}
+          <div style="font-size:12px;color:var(--g400);margin-top:4px;font-weight:400">{p.prod_code}</div>
+        </a>
+      ))}
+    </div>
+  </div>
+</Layout>

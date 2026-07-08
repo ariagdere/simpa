@@ -1,0 +1,249 @@
+---
+// src/pages/urunler/[code].astro
+export const prerender = false;
+
+import Layout from '../../layouts/Layout.astro';
+import {
+  getProduct,
+  getProductSpecs,
+  getProductDescription,
+  getSpecialNote,
+  getDrawing,
+  getImages,
+  getCertificates,
+  getVariantTable,
+  getCompatibleProducts,
+  getRelatedProducts,
+} from '../../lib/queries.js';
+
+const lang = 'tr'; // İlk sürüm: TR sabit. EN route'u ayrı bir sonraki adımda eklenecek.
+const { code } = Astro.params;
+const db = Astro.locals.runtime.env.DB;
+
+const product = await getProduct(db, code, lang);
+
+if (!product) {
+  return new Response('Ürün bulunamadı', { status: 404 });
+}
+
+const [specs, description, specialNote, drawingUrl, images, certificates, compatible, related] = await Promise.all([
+  getProductSpecs(db, product.id, lang),
+  getProductDescription(db, product.id, lang),
+  getSpecialNote(db, product.id, lang),
+  getDrawing(db, product.drawing_ref),
+  getImages(db, product.id),
+  getCertificates(db, product.id),
+  getCompatibleProducts(db, product.id, lang),
+  getRelatedProducts(db, product.category_id, product.id, lang),
+]);
+
+let variantTable = { columns: [], rows: [] };
+if (product.has_variant_table) {
+  variantTable = await getVariantTable(db, product.id, lang);
+}
+
+const boyutCols = variantTable.columns.filter((c) => c.group_key === 'boyut');
+const ekOzellikCols = variantTable.columns.filter((c) => c.group_key === 'ek_ozellik');
+const adetAgirlikCols = variantTable.columns.filter((c) => c.group_key === 'adet_agirlik');
+const kunyeFiltreCols = variantTable.columns.filter((c) => c.group_key === 'kunye_filtre');
+
+// Filtre dropdown'ları: sadece birden fazla farklı değeri olan künye-filtre alanları için
+const filterOptions = kunyeFiltreCols
+  .map((col) => {
+    const values = [...new Set(variantTable.rows.map((r) => r.values[col.attr_key]).filter(Boolean))];
+    return { ...col, values };
+  })
+  .filter((f) => f.values.length > 1);
+
+const displayCols = [...kunyeFiltreCols.filter((c) => !filterOptions.find((f) => f.attr_key === c.attr_key)), ...boyutCols, ...ekOzellikCols, ...adetAgirlikCols];
+
+const primaryImage = images.find((i) => i.is_primary) || images[0];
+const title = lang === 'en' ? product.title_en : product.title_tr;
+const categoryName = lang === 'en' ? product.category_name_en : product.category_name_tr;
+---
+<Layout title={`${title} — Simpa Elektrik`} lang={lang}>
+  <div class="bc"><div class="bc-in">
+    <a href="/">Ana Sayfa</a><span>›</span>
+    <a href={`/kategori/${product.category_slug}`}>Ürünlerimiz</a><span>›</span>
+    <a href={`/kategori/${product.category_slug}`}>{categoryName}</a><span>›</span>
+    <span class="cur">{product.prod_code}</span>
+  </div></div>
+
+  <div class="prod-wrap"><div class="prod-in">
+    <div class="prod-gallery">
+      {primaryImage && <img src={primaryImage.file_url} alt={title} style="width:100%;border-radius:10px" />}
+      {images.length > 1 && (
+        <div class="gallery-thumbs">
+          {images.map((img) => (
+            <img src={img.file_url} alt={title} style="width:64px;height:64px;object-fit:contain;border-radius:6px;border:1px solid var(--g200);cursor:pointer" />
+          ))}
+        </div>
+      )}
+    </div>
+
+    <div class="prod-info">
+      <div class="prod-cat">{categoryName}</div>
+      <h1 class="prod-title">{title}</h1>
+      <div class="prod-code">{product.prod_code}</div>
+
+      {specs.length > 0 && (
+        <div class="prod-specs">
+          {specs.map((s) => (
+            <div><div class="spec-lbl">{lang === 'en' ? s.label_en : s.label_tr}</div><div class="spec-val">{s.value}</div></div>
+          ))}
+        </div>
+      )}
+
+      {specialNote && (
+        <div class="special-note" style="background:#FFF8E6;border:1px solid #E0B341;border-radius:8px;padding:10px 14px;font-size:12.5px;color:#8a6d1f;margin-top:12px">
+          {specialNote}
+        </div>
+      )}
+
+      <div class="prod-actions">
+        <a href="#" class="btn-ask">✉ {lang === 'en' ? 'Quote / Ask' : 'Teklif / Soru Sor'}</a>
+        <a href="/belgeler" class="btn-cat">📄 {lang === 'en' ? 'Catalog' : 'Katalog'}</a>
+        <a href="#" class="btn-wp">💬 WA</a>
+      </div>
+
+      {certificates.length > 0 && (
+        <div class="cert-row">
+          {certificates.map((c) => <span class="cert-tag">{c.tag}</span>)}
+        </div>
+      )}
+    </div>
+  </div></div>
+
+  <div class="tabs-wrap">
+    <div class="tabs-nav">
+      {product.has_variant_table === 1 && <button class="tab-btn on" data-tab="tech">{lang === 'en' ? 'Technical Data' : 'Teknik Veriler'}</button>}
+      {description && <button class={`tab-btn ${product.has_variant_table !== 1 ? 'on' : ''}`} data-tab="desc">{lang === 'en' ? 'Description' : 'Ürün Açıklaması'}</button>}
+      <button class={`tab-btn ${product.has_variant_table !== 1 && !description ? 'on' : ''}`} data-tab="docs">{lang === 'en' ? 'Documents' : 'Belgeler'}</button>
+    </div>
+
+    {product.has_variant_table === 1 && (
+      <div id="tab-tech" class="tab-pane on">
+        <div class="diag-area mode-fixed">
+          {drawingUrl && (
+            <div class="diag-sticky-el"><img src={drawingUrl} alt="Teknik Çizim" /><div class="diag-cap">{lang === 'en' ? 'Technical Reference Drawing' : 'Teknik Referans Çizimi'}</div></div>
+          )}
+          <div class="diag-table-host">
+            {filterOptions.length > 0 && (
+              <div class="filter-row">
+                <span class="filter-lbl">{lang === 'en' ? 'Filter:' : 'Filtrele:'}</span>
+                {filterOptions.map((f) => (
+                  <select class="filter-sel" data-filter-key={f.attr_key}>
+                    <option value="">{lang === 'en' ? `All ${f.label}` : `Tüm ${f.label}`}</option>
+                    {f.values.map((v) => <option value={v}>{v}</option>)}
+                  </select>
+                ))}
+              </div>
+            )}
+            <div class="tbl-wrap">
+              <table class="tbl" id="variantTbl">
+                <thead>
+                  <tr>
+                    <th>{lang === 'en' ? 'Product Code' : 'Ürün Kodu'}</th>
+                    {displayCols.map((c) => <th style="text-align:right">{c.label}{c.unit ? ` (${c.unit})` : ''}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {variantTable.rows.map((row, i) => (
+                    <tr class={i % 2 === 1 ? 'alt' : ''} data-filters={JSON.stringify(Object.fromEntries(filterOptions.map((f) => [f.attr_key, row.values[f.attr_key] || ''])))}>
+                      <td>{row.variant_code}</td>
+                      {displayCols.map((c) => <td class="d">{row.values[c.attr_key] ?? '—'}</td>)}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+
+    {description && (
+      <div id="tab-desc" class={`tab-pane ${product.has_variant_table !== 1 ? 'on' : ''}`}>
+        <p style="font-size:15px;color:var(--g600);line-height:1.8;max-width:680px;white-space:pre-line">{description}</p>
+      </div>
+    )}
+
+    <div id="tab-docs" class={`tab-pane ${product.has_variant_table !== 1 && !description ? 'on' : ''}`}>
+      <div style="display:flex;flex-direction:column;gap:9px;max-width:460px" id="docsList">
+        <p style="font-size:13px;color:var(--g400)">{lang === 'en' ? 'Loading…' : 'Yükleniyor…'}</p>
+      </div>
+    </div>
+  </div>
+
+  {compatible.length > 0 && (
+    <div class="rel-sec"><div class="rel-in">
+      <div class="rel-title">{lang === 'en' ? 'Compatible Products' : 'Uyumlu Ürünler'}</div>
+      <div class="rel-grid">
+        {compatible.map((c) => (
+          <a href={`/urunler/${c.prod_code}`} class="rel-card"><div class="rel-card-title">{c.title}</div></a>
+        ))}
+      </div>
+    </div></div>
+  )}
+
+  {related.length > 0 && (
+    <div class="rel-sec"><div class="rel-in">
+      <div class="rel-title">{lang === 'en' ? 'Other Products In This Category' : 'Bu Kategorideki Diğer Ürünler'}</div>
+      <div class="rel-grid">
+        {related.map((r) => (
+          <a href={`/urunler/${r.prod_code}`} class="rel-card">
+            {r.image && <img src={r.image} alt={r.title} style="width:100%;aspect-ratio:1;object-fit:contain" />}
+            <div class="rel-card-title">{r.title}</div>
+          </a>
+        ))}
+      </div>
+    </div></div>
+  )}
+</Layout>
+
+<script>
+  // Sekme geçişi
+  document.querySelectorAll('.tab-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach((b) => b.classList.remove('on'));
+      document.querySelectorAll('.tab-pane').forEach((p) => p.classList.remove('on'));
+      btn.classList.add('on');
+      const pane = document.getElementById('tab-' + btn.dataset.tab);
+      if (pane) pane.classList.add('on');
+    });
+  });
+
+  // Varyant tablosu filtreleme
+  document.querySelectorAll('.filter-sel').forEach((sel) => {
+    sel.addEventListener('change', () => {
+      const active = {};
+      document.querySelectorAll('.filter-sel').forEach((s) => {
+        if (s.value) active[s.dataset.filterKey] = s.value;
+      });
+      document.querySelectorAll('#variantTbl tbody tr').forEach((tr) => {
+        const rowFilters = JSON.parse(tr.dataset.filters || '{}');
+        const match = Object.entries(active).every(([k, v]) => rowFilters[k] === v);
+        tr.style.display = match ? '' : 'none';
+      });
+    });
+  });
+
+  // Belgeler sekmesi: genel dokümanları API'den çek
+  fetch('/api/documents')
+    .then((r) => r.json())
+    .then((docs) => {
+      const list = document.getElementById('docsList');
+      if (!list) return;
+      if (!docs.length) {
+        list.innerHTML = '<p style="font-size:13px;color:var(--g400)">Belge bulunamadı.</p>';
+        return;
+      }
+      list.innerHTML = docs
+        .map(
+          (d) =>
+            `<a href="${d.file_url_tr || d.file_url_en}" style="display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(--g50);border:1px solid var(--g200);border-radius:7px;text-decoration:none;color:var(--navy);font-size:13px;font-weight:600">📄 ${d.title_tr}<span style="margin-left:auto;font-size:11px;color:var(--blue)">↓</span></a>`
+        )
+        .join('');
+    })
+    .catch(() => {});
+</script>
