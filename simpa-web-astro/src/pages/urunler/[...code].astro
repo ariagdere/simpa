@@ -292,10 +292,19 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
                   {(row.values['CIVATA'] || row.values['KABLO_KESITI']) && <span class="rc-bolt">{[row.values['CIVATA'], row.values['KABLO_KESITI'] && `${row.values['KABLO_KESITI']} mm²`].filter(Boolean).join(' · ')}</span>}
                 </div>
                 <div class="rc-dims">
-                  {displayCols.filter((c) => c.attr_key !== 'CIVATA' && c.attr_key !== 'KABLO_KESITI').map((c) => (
+                  {displayCols.filter((c) => !['CIVATA', 'KABLO_KESITI', 'KUTU_ADEDI', 'KUTU_AGIRLIGI', 'KOLI_ADEDI', 'KOLI_AGIRLIGI', 'PAKET_ADEDI', 'POSET_ADEDI', 'CUVAL_ADEDI'].includes(c.attr_key)).map((c) => (
                     <div class="rc-dim"><div class="rc-dim-l">{c.label}</div><div class="rc-dim-v">{row.values[c.attr_key] ?? '—'}</div></div>
                   ))}
                 </div>
+                {(row.values['KUTU_ADEDI'] || row.values['KOLI_ADEDI'] || row.values['PAKET_ADEDI'] || row.values['POSET_ADEDI'] || row.values['CUVAL_ADEDI']) && (
+                  <div class="rc-pkg">
+                    {row.values['PAKET_ADEDI'] && <span>Paket: <strong>{row.values['PAKET_ADEDI']} adet</strong></span>}
+                    {row.values['POSET_ADEDI'] && <span>Poşet: <strong>{row.values['POSET_ADEDI']} adet</strong></span>}
+                    {row.values['CUVAL_ADEDI'] && <span>Çuval: <strong>{row.values['CUVAL_ADEDI']} adet</strong></span>}
+                    {row.values['KUTU_ADEDI'] && <span>Kutu: <strong>{row.values['KUTU_ADEDI']} ad{row.values['KUTU_AGIRLIGI'] ? ` · ${row.values['KUTU_AGIRLIGI']}` : ''}</strong></span>}
+                    {row.values['KOLI_ADEDI'] && <span>Koli: <strong>{row.values['KOLI_ADEDI']}{row.values['KOLI_AGIRLIGI'] ? ` · ${row.values['KOLI_AGIRLIGI']}` : ''}</strong></span>}
+                  </div>
+                )}
               </div>
             ))}
             </div>
