@@ -18,6 +18,8 @@ const { title, lang = 'tr' } = Astro.props;
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <div class="wrap">
+  <div class="frame">
   <div class="topbar"><div class="topbar-in">
     <a href="tel:+902164996962">📞 +90 216 499 69 62</a>
     <span style="opacity:.3">|</span>
@@ -29,7 +31,14 @@ const { title, lang = 'tr' } = Astro.props;
   </div></div>
 
   <header class="hdr"><div class="hdr-in">
-    <a href="/" class="logo-link"><strong style="font-family:var(--cond);font-size:22px;color:var(--navy)">SIMPA</strong></a>
+    <a href="/"><img src="/logo.png" alt="Simpa" /></a>
+    <nav>
+      <a href="/" class="nav-a cur">{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</a>
+      <a href="/belgeler" class="nav-a">{lang === 'en' ? 'Catalog' : 'Katalog'}</a>
+      <a href="/sertifikalar" class="nav-a">{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</a>
+      <a href="/hakkimizda" class="nav-a">{lang === 'en' ? 'About' : 'Hakkımızda'}</a>
+      <a href="/iletisim" class="nav-a nav-cta">{lang === 'en' ? 'Contact' : 'İletişim'}</a>
+    </nav>
   </div></header>
 
   <slot />
@@ -42,5 +51,7 @@ const { title, lang = 'tr' } = Astro.props;
     <p>© 2026 Simpa Elektrik Malzemesi San. ve Tic. A.Ş.</p>
     <div class="cert-logos"><span class="cert-badge">ISO</span><span class="cert-badge">CE</span><span class="cert-badge">EAC</span><span class="cert-badge">RoHS</span></div>
   </div></footer>
+  </div>
+  </div>
 </body>
 </html>
