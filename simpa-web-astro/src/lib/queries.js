@@ -135,7 +135,31 @@ export async function getVariantTable(db, productId, lang) {
   return { columns, rows: [...byVariant.values()] };
 }
 
-/** Uyumlu ürünler (varsa) — künye kartları için temel bilgiler. */
+/** Künye kutusunda gösterilecek "Kablo Kesiti: 16-240mm²" / "Civata: M5-M16" gibi aralıklar. */
+export async function getKunyeRanges(db, productId, lang) {
+  const { results } = await db
+    .prepare(`SELECT attr_key, attr_value FROM variant_attributes WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id = ?) AND attr_key IN ('KABLO_KESITI','CIVATA')`)
+    .bind(productId)
+    .all();
+
+  const kesitVals = [...new Set(results.filter((r) => r.attr_key === 'KABLO_KESITI').map((r) => r.attr_value))];
+  const civataVals = [...new Set(results.filter((r) => r.attr_key === 'CIVATA').map((r) => r.attr_value))];
+
+  const ranges = [];
+  if (kesitVals.length) {
+    const nums = kesitVals.map((v) => parseFloat(v.replace(',', '.'))).filter((n) => !isNaN(n)).sort((a, b) => a - b);
+    const val = nums.length > 1 ? `${nums[0]}–${nums[nums.length - 1]} mm²` : `${nums[0]} mm²`;
+    ranges.push({ attr_key: 'KABLO_KESITI', label: lang === 'en' ? 'Cable Section' : 'Kablo Kesiti', value: val });
+  }
+  if (civataVals.length) {
+    const nums = civataVals.map((v) => ({ raw: v, n: parseInt(v.replace(/\D/g, ''), 10) })).filter((x) => !isNaN(x.n)).sort((a, b) => a.n - b.n);
+    const val = nums.length > 1 ? `${nums[0].raw}–${nums[nums.length - 1].raw}` : nums[0].raw;
+    ranges.push({ attr_key: 'CIVATA', label: lang === 'en' ? 'Bolt' : 'Civata', value: val });
+  }
+  return ranges;
+}
+
+
 export async function getCompatibleProducts(db, productId, lang) {
   const titleCol = lang === 'en' ? 'title_en' : 'title_tr';
   const { results } = await db
