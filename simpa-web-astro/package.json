@@ -1,5 +1,5 @@
 {
-  "name": "simpa",
+  "name": "simpa-web",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "deploy": "astro build && wrangler deploy --config dist/server/wrangler.json",
     "astro": "astro"
   },
   "dependencies": {
