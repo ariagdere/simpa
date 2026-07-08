@@ -58,7 +58,7 @@ const filterOptions = kunyeFiltreCols
   })
   .filter((f) => f.values.length > 1);
 
-const displayCols = [...kunyeFiltreCols.filter((c) => !filterOptions.find((f) => f.attr_key === c.attr_key)), ...boyutCols, ...ekOzellikCols, ...adetAgirlikCols];
+const displayCols = [...kunyeFiltreCols, ...boyutCols, ...ekOzellikCols, ...adetAgirlikCols];
 
 const galleryImages = drawingUrl ? [...images, { file_url: drawingUrl, is_primary: 0, is_drawing: true }] : images;
 const primaryImage = images.find((i) => i.is_primary) || images[0] || galleryImages[0];
