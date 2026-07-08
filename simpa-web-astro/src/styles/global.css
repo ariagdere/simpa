@@ -1,4 +1,15 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ═══════════════════════════
+   MASAÜSTÜ / MOBİL GEÇİŞİ (prototipte ayrı DOM ağaçları JS ile
+   değiştiriliyordu; gerçek sitede CSS media query ile yapıyoruz)
+═══════════════════════════ */
+.desktop-only{display:block}
+.mobile-only{display:none}
+@media (max-width:860px){
+  .desktop-only{display:none}
+  .mobile-only{display:block}
+}
 :root{
   --navy:#1a2e4a;--blue:#1e5fa8;--blue-l:#2e7dd4;
   --accent:#e8a020;--accent-l:#f5c355;
