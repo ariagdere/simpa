@@ -3,7 +3,8 @@
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 
-const db = Astro.locals.runtime.env.DB;
+import { env } from 'cloudflare:workers';
+const db = env.DB;
 const { results: products } = await db
   .prepare(
     `SELECT prod_code, title_tr FROM products WHERE title_tr IS NOT NULL AND is_active = 1 ORDER BY sort_order LIMIT 12`
