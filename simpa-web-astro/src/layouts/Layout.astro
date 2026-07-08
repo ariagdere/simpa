@@ -34,6 +34,7 @@ const { title, lang = 'tr' } = Astro.props;
   <header class="hdr"><div class="hdr-in">
     <a href="/"><img src="/logo.png" alt="Simpa" /></a>
     <nav>
+      <a href="/" class="nav-a">{lang === 'en' ? '🏠 Home' : '🏠 Ana Sayfa'}</a>
       <a href="/" class="nav-a cur">{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</a>
       <a href="/belgeler" class="nav-a">{lang === 'en' ? 'Catalog' : 'Katalog'}</a>
       <a href="/sertifikalar" class="nav-a">{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</a>
@@ -49,6 +50,27 @@ const { title, lang = 'tr' } = Astro.props;
       <div class="ml">
         <a href="#" class={lang === 'tr' ? 'cur' : ''}>TR</a>
         <a href="#" class={lang === 'en' ? 'cur' : ''}>EN</a>
+      </div>
+    </div>
+    <div class="m-hdr">
+      <button class="m-hdr-menu-btn" id="mMenuBtn" aria-label="Menü">☰</button>
+      <a href="/"><img src="/logo.png" alt="Simpa" /></a>
+      <span class="m-hdr-spacer"></span>
+    </div>
+    <div class="m-drawer-overlay" id="mDrawerOverlay">
+      <div class="m-drawer-panel">
+        <div class="m-drawer-hdr">
+          <span>Menü</span>
+          <button class="m-drawer-close" id="mDrawerClose">✕</button>
+        </div>
+        <div class="m-drawer-list">
+          <a href="/" class="m-drawer-item"><span>🏠</span><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Home' : 'Ana Sayfa'}</div></div></a>
+          <a href="/" class="m-drawer-item"><span>📦</span><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</div></div></a>
+          <a href="/belgeler" class="m-drawer-item"><span>📄</span><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Catalog' : 'Katalog'}</div></div></a>
+          <a href="/sertifikalar" class="m-drawer-item"><span>✔</span><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</div></div></a>
+          <a href="/hakkimizda" class="m-drawer-item"><span>ℹ</span><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'About' : 'Hakkımızda'}</div></div></a>
+          <a href="/iletisim" class="m-drawer-item"><span>✉</span><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Contact' : 'İletişim'}</div></div></a>
+        </div>
       </div>
     </div>
   </div>
@@ -80,4 +102,16 @@ const { title, lang = 'tr' } = Astro.props;
   </div>
   </div>
 </body>
+<script>
+  const mMenuBtn = document.getElementById('mMenuBtn');
+  const mDrawerOverlay = document.getElementById('mDrawerOverlay');
+  const mDrawerClose = document.getElementById('mDrawerClose');
+  if (mMenuBtn && mDrawerOverlay) {
+    mMenuBtn.addEventListener('click', () => mDrawerOverlay.classList.add('open'));
+    mDrawerClose?.addEventListener('click', () => mDrawerOverlay.classList.remove('open'));
+    mDrawerOverlay.addEventListener('click', (e) => {
+      if (e.target === mDrawerOverlay) mDrawerOverlay.classList.remove('open');
+    });
+  }
+</script>
 </html>
