@@ -20,6 +20,7 @@ const { title, lang = 'tr' } = Astro.props;
 <body>
   <div class="wrap">
   <div class="frame">
+  <div class="desktop-only">
   <div class="topbar"><div class="topbar-in">
     <a href="tel:+902164996962">📞 +90 216 499 69 62</a>
     <span style="opacity:.3">|</span>
@@ -40,9 +41,21 @@ const { title, lang = 'tr' } = Astro.props;
       <a href="/iletisim" class="nav-a nav-cta">{lang === 'en' ? 'Contact' : 'İletişim'}</a>
     </nav>
   </div></header>
+  </div>
+
+  <div class="mobile-only">
+    <div class="m-topbar">
+      <span class="mc">📞 +90 216 499 69 62</span>
+      <div class="ml">
+        <a href="#" class={lang === 'tr' ? 'cur' : ''}>TR</a>
+        <a href="#" class={lang === 'en' ? 'cur' : ''}>EN</a>
+      </div>
+    </div>
+  </div>
 
   <slot />
 
+  <div class="desktop-only">
   <footer class="ftr"><div class="ftr-in">
     <div class="ftr-col"><h4>{lang === 'en' ? 'Products' : 'Ürünler'}</h4><a href="#">Kablo Pabuçları</a><a href="#">Ek Mufları</a><a href="#">Baralar</a></div>
     <div class="ftr-col"><h4>{lang === 'en' ? 'Company' : 'Kurumsal'}</h4><a href="#">Hakkımızda</a><a href="#">Sertifikalar</a></div>
@@ -51,6 +64,19 @@ const { title, lang = 'tr' } = Astro.props;
     <p>© 2026 Simpa Elektrik Malzemesi San. ve Tic. A.Ş.</p>
     <div class="cert-logos"><span class="cert-badge">ISO</span><span class="cert-badge">CE</span><span class="cert-badge">EAC</span><span class="cert-badge">RoHS</span></div>
   </div></footer>
+  </div>
+
+  <div class="mobile-only">
+    <div class="m-ftr">
+      <img src="/logo.png" alt="Simpa" />
+      <p>DES Sanayi Sitesi 105. Sokak B 11 Blok No:16 Y. Dudullu, İstanbul<br />Tel: +90 216 499 69 62</p>
+      <div class="m-ftr-links">
+        <a href="#">Kablo Pabuçları</a><a href="#">Ek Mufları</a><a href="#">Baralar</a><a href="#">Terminaller</a>
+        <a href="/hakkimizda">Hakkımızda</a><a href="/sertifikalar">Sertifikalar</a><a href="/belgeler">Katalog</a><a href="/iletisim">İletişim</a>
+      </div>
+      <div class="m-ftr-copy">© 2026 Simpa Elektrik Malzemesi San. ve Tic. A.Ş.</div>
+    </div>
+  </div>
   </div>
   </div>
 </body>
