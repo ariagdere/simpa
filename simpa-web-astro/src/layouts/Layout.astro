@@ -13,9 +13,6 @@ const path = Astro.url.pathname;
 const isActive = (prefix) => (prefix === '/' ? path === '/' : path.startsWith(prefix));
 
 const categories = await getCategoriesWithCounts(env.DB, lang);
-const half = Math.ceil(categories.length / 2);
-const catCol1 = categories.slice(0, half);
-const catCol2 = categories.slice(half);
 
 const WHATSAPP_URL = 'https://api.whatsapp.com/send/?phone=905544972085&text&app_absent=0';
 const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
@@ -105,10 +102,7 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
     </div>
     <div class="ftr-col">
       <h4>{lang === 'en' ? 'Products' : 'Ürünler'}</h4>
-      <div class="ftr-cat-cols">
-        <div>{catCol1.map((c) => <a href={`/kategori/${c.slug}`}>{c.name}</a>)}</div>
-        <div>{catCol2.map((c) => <a href={`/kategori/${c.slug}`}>{c.name}</a>)}</div>
-      </div>
+      {categories.map((c) => <a href={`/kategori/${c.slug}`}>{c.name}</a>)}
     </div>
     <div class="ftr-col">
       <h4>{lang === 'en' ? 'Company' : 'Kurumsal'}</h4>
