@@ -114,7 +114,7 @@ export async function getHomeStats(db) {
 export async function getCertificates(db, productId) {
   const { results } = await db
     .prepare(
-      `SELECT c.tag, c.name FROM product_certificates pc
+      `SELECT c.tag, c.name, c.file_url_tr, c.file_url_en FROM product_certificates pc
        JOIN certificates c ON c.tag = pc.cert_tag
        WHERE pc.product_id = ?`
     )
