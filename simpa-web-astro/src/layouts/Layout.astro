@@ -14,6 +14,7 @@ const { title, lang = 'tr' } = Astro.props;
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="format-detection" content="telephone=no" />
+  <link rel="icon" type="image/png" href="https://assets.superpress.com.tr/logosimpa-fav.png" />
   <title>{title}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet" />
@@ -33,7 +34,7 @@ const { title, lang = 'tr' } = Astro.props;
   </div></div>
 
   <header class="hdr"><div class="hdr-in">
-    <a href="/"><img src="/logo.png" alt="Simpa" /></a>
+    <a href="/"><img src="https://assets.superpress.com.tr/simpa-logo-main.png" alt="Simpa" /></a>
     <nav>
       <a href="/" class="nav-a nav-home" aria-label={lang === 'en' ? 'Home' : 'Ana Sayfa'}><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11.47 3.84a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.06l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 0 0 1.061 1.06l8.69-8.69Z"/><path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.43Z"/></svg></a>
       <a href="/" class="nav-a cur">{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</a>
@@ -55,7 +56,7 @@ const { title, lang = 'tr' } = Astro.props;
     </div>
     <div class="m-hdr">
       <button class="m-hdr-menu-btn" id="mMenuBtn" aria-label="Menü">☰</button>
-      <a href="/"><img src="/logo.png" alt="Simpa" /></a>
+      <a href="/"><img src="https://assets.superpress.com.tr/simpa-logo-main.png" alt="Simpa" /></a>
       <span class="m-hdr-spacer"></span>
     </div>
     <div class="m-drawer-overlay" id="mDrawerOverlay">
@@ -91,7 +92,7 @@ const { title, lang = 'tr' } = Astro.props;
 
   <div class="mobile-only">
     <div class="m-ftr">
-      <img src="/logo.png" alt="Simpa" />
+      <img src="https://assets.superpress.com.tr/simpa-logo-main.png" alt="Simpa" />
       <p>DES Sanayi Sitesi 105. Sokak B 11 Blok No:16 Y. Dudullu, İstanbul<br />Tel: +90 216 499 69 62</p>
       <div class="m-ftr-links">
         <a href="#">Kablo Pabuçları</a><a href="#">Ek Mufları</a><a href="#">Baralar</a><a href="#">Terminaller</a>
