@@ -146,6 +146,7 @@ nav{display:flex;gap:4px;margin-left:auto}
 .hero-in{max-width:1140px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:1fr auto;gap:0;align-items:center}
 .hero-l{padding:56px 48px 56px 0;display:flex;flex-direction:column;justify-content:center}
 .hero-r{position:relative;display:flex;align-items:center;justify-content:center;padding:32px 0 32px 24px}
+.hero-r img{max-width:340px;max-height:420px;width:auto;height:auto;object-fit:contain;border-radius:10px;box-shadow:0 20px 50px rgba(0,0,0,.25)}
 .hero-r img{max-height:420px;width:auto;object-fit:contain;opacity:1;border-radius:6px;box-shadow:0 16px 48px rgba(0,0,0,.4);transform:rotate(1.5deg)}
 .hero-r::before{content:none}
 .badge{display:inline-flex;align-items:center;gap:7px;background:rgba(232,160,32,.15);border:1px solid rgba(232,160,32,.35);padding:5px 12px;border-radius:20px;font-size:12px;font-weight:600;color:var(--accent-l);letter-spacing:.05em;text-transform:uppercase;margin-bottom:18px}
