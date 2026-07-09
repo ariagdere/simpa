@@ -77,6 +77,26 @@ export async function getImages(db, productId) {
 }
 
 /** Sertifika rozetleri. */
+/** Tüm sertifikalar (ana sayfa "Sertifikalar & Belgeler" bölümü için, ürüne bağlı değil). */
+export async function getAllCertificates(db) {
+  const { results } = await db.prepare('SELECT tag, name, file_url_tr, file_url_en FROM certificates').all();
+  return results;
+}
+
+/** Ana sayfa istatistik şeridi için gerçek sayılar (kategori, ürün çeşidi, sertifika). */
+export async function getHomeStats(db) {
+  const [{ catCount }, { varietyCount }, { certCount }] = await Promise.all([
+    db.prepare('SELECT COUNT(*) as catCount FROM categories').first(),
+    db
+      .prepare(
+        `SELECT (SELECT COUNT(*) FROM product_variants) + (SELECT COUNT(*) FROM products WHERE has_variant_table = 0 AND title_tr IS NOT NULL) as varietyCount`
+      )
+      .first(),
+    db.prepare('SELECT COUNT(*) as certCount FROM certificates').first(),
+  ]);
+  return { catCount, varietyCount, certCount };
+}
+
 export async function getCertificates(db, productId) {
   const { results } = await db
     .prepare(
