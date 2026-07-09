@@ -16,6 +16,7 @@ import {
   getCompatibleProducts,
   getRelatedProducts,
   getKunyeRanges,
+  getKeyDocuments,
 } from '../../lib/queries.js';
 
 import { env } from 'cloudflare:workers';
@@ -29,7 +30,7 @@ if (!product) {
   return new Response('Ürün bulunamadı', { status: 404 });
 }
 
-const [specsRaw, description, specialNote, drawingUrl, images, certificates, compatible, related] = await Promise.all([
+const [specsRaw, description, specialNote, drawingUrl, images, certificates, compatible, related, keyDocs] = await Promise.all([
   getProductSpecs(db, product.id, lang),
   getProductDescription(db, product.id, lang),
   getSpecialNote(db, product.id, lang),
@@ -38,6 +39,7 @@ const [specsRaw, description, specialNote, drawingUrl, images, certificates, com
   getCertificates(db, product.id),
   getCompatibleProducts(db, product.id, lang),
   getRelatedProducts(db, product.category_id, product.id, lang),
+  getKeyDocuments(db, product.brand, lang),
 ]);
 
 let variantTable = { columns: [], rows: [] };
@@ -137,8 +139,8 @@ const quickItems = [
 
       <div class="prod-actions">
         <a href="#" class="btn-ask">✉ Teklif / Soru Sor</a>
-        <a href="/belgeler" class="btn-cat">📄 Katalog</a>
-        <a href="#" class="btn-wp">💬 WA</a>
+        {keyDocs.catalogUrl && <a href={keyDocs.catalogUrl} target="_blank" rel="noopener" class="btn-cat">📄 Katalog</a>}
+        <a href="https://api.whatsapp.com/send/?phone=905544972085&text&app_absent=0" target="_blank" rel="noopener" class="btn-wp">💬 WA</a>
       </div>
 
       {certificates.length > 0 && <div class="cert-row">{certificates.map((c) => <span class="cert-tag">{c.tag}</span>)}</div>}
@@ -306,7 +308,7 @@ const quickItems = [
 
     <div class="m-prod-btns">
       <a href="#" class="m-btn-ask">✉ Teklif / Soru Sor</a>
-      <div class="m-btn-row"><a href="/belgeler" class="m-btn-cat">📄 Katalog</a><a href="#" class="m-btn-wp">💬 WhatsApp</a></div>
+      <div class="m-btn-row">{keyDocs.catalogUrl && <a href={keyDocs.catalogUrl} target="_blank" rel="noopener" class="m-btn-cat">📄 Katalog</a>}<a href="https://api.whatsapp.com/send/?phone=905544972085&text&app_absent=0" target="_blank" rel="noopener" class="m-btn-wp">💬 WhatsApp</a></div>
     </div>
   </div>
 
