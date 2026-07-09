@@ -3,13 +3,13 @@
 export const prerender = false;
 
 import Layout from '../layouts/Layout.astro';
-import { getAllCertificates, getHomeStats } from '../lib/queries.js';
+import { getAllCertificates, getHomeStats, getKeyDocuments } from '../lib/queries.js';
 import { env } from 'cloudflare:workers';
 
 const lang = 'tr';
 const db = env.DB;
 
-const [certificates, stats] = await Promise.all([getAllCertificates(db), getHomeStats(db)]);
+const [certificates, stats, keyDocs] = await Promise.all([getAllCertificates(db), getHomeStats(db), getKeyDocuments(db, null, lang)]);
 
 // 1.328 varyant + 12 alet gibi tam sayıyı pazarlama diliyle yuvarlıyoruz (örn. 1340 -> "1.300+")
 const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
@@ -25,7 +25,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
       <p>Sıkmalı kablo pabuçları, baralar ve bağlantı ekipmanlarında yılların üretim deneyimi. ISO 9001, CE ve EAC sertifikalı ürünler.</p>
       <div class="hero-btns">
         <a href="/kategori/" class="btn-p">Ürünleri İncele →</a>
-        <a href="/belgeler" class="btn-s">📄 Katalog İndir</a>
+        <a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="btn-s">📄 Katalog İndir</a>
       </div>
     </div>
     <div class="hero-r"><img src="https://assets.superpress.com.tr/documents/simpaocak26kattr.png" alt="Simpa Elektrik Katalog" /></div>
@@ -48,15 +48,15 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
           <span class="hub-cta">İncele <span class="hub-arr">→</span></span>
         </div>
       </a>
-      <a href="/belgeler" class="hub-card accent-blue">
+      <a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="hub-card accent-blue">
         <div class="hub-img"><img src="https://assets.superpress.com.tr/simpaocak26kare-2.png" alt="Ürün Kataloğu" /></div>
         <div class="hub-body">
           <div class="hub-title">Ürün Kataloğu</div>
-          <div class="hub-sub">Güncel ürün kataloğumuzu PDF olarak indirin, ekibinizle paylaşın.</div>
-          <span class="hub-cta">PDF İndir <span class="hub-arr">↓</span></span>
+          <div class="hub-sub">Güncel ürün kataloğumuzu PDF olarak görüntüleyin, ekibinizle paylaşın.</div>
+          <span class="hub-cta">PDF Görüntüle <span class="hub-arr">→</span></span>
         </div>
       </a>
-      <a href="/belgeler" class="hub-card accent-navy">
+      <a href={keyDocs.priceListUrl || '#'} download class="hub-card accent-navy">
         <div class="hub-img"><img src="https://assets.superpress.com.tr/simpafiyatkare.png" alt="Fiyat Listesi" /></div>
         <div class="hub-body">
           <div class="hub-title">Fiyat Listesi</div>
@@ -108,7 +108,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
       <div class="m-badge">1977'den bu yana</div>
       <h1>Güvenilir <em>Elektrik Bağlantı</em> Çözümleri</h1>
       <p>ISO 9001, CE ve EAC sertifikalı kablo pabuçları, baralar ve bağlantı ekipmanları.</p>
-      <div class="m-hero-btns"><a href="/kategori/" class="m-btn-p">Ürünleri İncele</a><a href="/belgeler" class="m-btn-s">Katalog</a></div>
+      <div class="m-hero-btns"><a href="/kategori/" class="m-btn-p">Ürünleri İncele</a><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="m-btn-s">Katalog</a></div>
     </div>
   </div>
 
@@ -129,15 +129,15 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
           <span class="m-hub-cta">İncele <span class="m-hub-arr">→</span></span>
         </div>
       </a>
-      <a href="/belgeler" class="m-hub-card accent-blue">
+      <a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="m-hub-card accent-blue">
         <div class="m-hub-img"><img src="https://assets.superpress.com.tr/simpaocak26kare-2.png" alt="Ürün Kataloğu" /></div>
         <div class="m-hub-body">
           <div class="m-hub-title">Ürün Kataloğu</div>
           <div class="m-hub-sub">Güncel katalog, PDF formatında</div>
-          <span class="m-hub-cta">PDF İndir <span class="m-hub-arr">↓</span></span>
+          <span class="m-hub-cta">PDF Görüntüle <span class="m-hub-arr">→</span></span>
         </div>
       </a>
-      <a href="/belgeler" class="m-hub-card accent-navy">
+      <a href={keyDocs.priceListUrl || '#'} download class="m-hub-card accent-navy">
         <div class="m-hub-img"><img src="https://assets.superpress.com.tr/simpafiyatkare.png" alt="Fiyat Listesi" /></div>
         <div class="m-hub-body">
           <div class="m-hub-title">Fiyat Listesi</div>
