@@ -121,11 +121,13 @@ nav{display:flex;gap:4px;margin-left:auto}
 .ham span{display:block;height:2px;width:22px;background:var(--navy);border-radius:2px}
 .ftr{background:var(--navy);color:rgba(255,255,255,.7);padding:40px 0 0}
 .ftr-in{max-width:1140px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:36px}
-.ftr-brand img{height:26px;width:auto;margin-bottom:12px;filter:brightness(0) invert(1)}
-.ftr-brand p{font-size:13px;line-height:1.7;max-width:230px}
 .ftr-col h4{color:#fff;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:12px}
 .ftr-brand img{height:26px;width:auto;margin-bottom:14px;filter:brightness(0) invert(1)}
 .ftr-brand p{font-size:12.5px;color:rgba(255,255,255,.55);line-height:1.7;max-width:260px}
+.ftr-social{display:flex;gap:12px;margin-top:16px}
+.ftr-social a{color:rgba(255,255,255,.55);transition:.2s}
+.ftr-social a:hover{color:#fff}
+.ftr-cat-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
 .ftr-col a{display:block;color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;margin-bottom:6px}
 .ftr-col a:hover{color:#fff}
 .ftr-bot{margin-top:32px;padding:14px 24px;border-top:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;align-items:center;max-width:1140px;margin-left:auto;margin-right:auto}
@@ -135,6 +137,8 @@ nav{display:flex;gap:4px;margin-left:auto}
 .m-ftr{background:var(--navy);color:rgba(255,255,255,.65);padding:24px 16px}
 .m-ftr img{height:22px;width:auto;margin-bottom:10px;filter:brightness(0) invert(1)}
 .m-ftr p{font-size:12px;line-height:1.7;margin-bottom:14px}
+.m-ftr-social{display:flex;gap:16px;margin-bottom:16px}
+.m-ftr-social a{color:rgba(255,255,255,.6)}
 .m-ftr-links{display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;margin-bottom:14px}
 .m-ftr-links a{color:rgba(255,255,255,.6);text-decoration:none;font-size:12px}
 .m-ftr-copy{font-size:11px;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.1);padding-top:12px}
@@ -524,7 +528,7 @@ nav{display:flex;gap:4px;margin-left:auto}
    HUB CARDS (v1 elevated 3-box)
 ═══════════════════════════ */
 .hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.hub-card{background:#fff;border:1px solid var(--g200);border-radius:12px;overflow:hidden;text-decoration:none;transition:.25s cubic-bezier(.4,0,.2,1);display:block;position:relative}
+.hub-card{background:#fff;border:1px solid var(--g200);border-radius:12px;overflow:hidden;text-decoration:none;transition:.25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;position:relative}
 .hub-card:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(26,46,74,.16);border-color:transparent}
 .hub-img{height:200px;background:var(--g50);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:20px}
 .hub-img img{max-width:100%;max-height:100%;object-fit:contain;transition:.3s}
@@ -532,12 +536,12 @@ nav{display:flex;gap:4px;margin-left:auto}
 .hub-img-doc{background:linear-gradient(135deg,var(--navy),#122238);display:flex;align-items:center;justify-content:center}
 .hub-doc-icon{font-size:56px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.3))}
 .hub-badge{position:absolute;top:14px;left:14px;width:30px;height:30px;background:rgba(255,255,255,.92);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-size:13px;font-weight:700;color:var(--navy);box-shadow:0 2px 8px rgba(0,0,0,.15)}
-.hub-body{padding:20px 22px 22px;border-top:3px solid var(--accent);position:relative}
+.hub-body{padding:20px 22px 22px;border-top:3px solid var(--accent);position:relative;display:flex;flex-direction:column;flex:1}
 .hub-card.accent-blue .hub-body{border-top-color:var(--blue)}
 .hub-card.accent-navy .hub-body{border-top-color:var(--navy)}
 .hub-title{font-family:var(--cond);font-size:20px;font-weight:700;color:var(--navy);margin-bottom:6px}
 .hub-sub{font-size:13px;color:var(--g600);line-height:1.55;margin-bottom:16px}
-.hub-cta{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+.hub-cta{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em;margin-top:auto}
 .hub-card.accent-blue .hub-cta{color:var(--blue)}
 .hub-card.accent-navy .hub-cta{color:var(--navy)}
 .hub-arr{transition:.2s;display:inline-block}
