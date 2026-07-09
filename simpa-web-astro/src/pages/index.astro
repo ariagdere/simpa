@@ -89,7 +89,9 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
       <div class="cert-grid">
         {certificates.map((c) => (
           <a href={c.file_url_tr || c.file_url_en} target="_blank" rel="noopener" class="cert-card">
-            <div class="cert-card-img"><div class="iso-placeholder"><div class="iso-icon">{c.tag}</div></div></div>
+            <div class="cert-card-img">
+              {c.image_url ? <img src={c.image_url} alt={c.name} style="max-width:100%;max-height:100%;object-fit:contain" /> : <div class="iso-placeholder"><div class="iso-icon">{c.tag}</div></div>}
+            </div>
             <div class="cert-card-info"><div class="cert-card-name">{c.name}</div><div class="cert-card-sub">Sertifika / Belge</div></div>
           </a>
         ))}
@@ -155,7 +157,9 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
       <div class="m-cert-scroll">
         {certificates.map((c) => (
           <a href={c.file_url_tr || c.file_url_en} target="_blank" rel="noopener" class="m-cert-card">
-            <div class="m-cert-card-img"><div class="iso-placeholder"><div class="iso-icon" style="width:40px;height:40px;font-size:9px">{c.tag}</div></div></div>
+            <div class="m-cert-card-img">
+              {c.image_url ? <img src={c.image_url} alt={c.name} style="max-width:100%;max-height:100%;object-fit:contain" /> : <div class="iso-placeholder"><div class="iso-icon" style="width:40px;height:40px;font-size:9px">{c.tag}</div></div>}
+            </div>
             <div class="m-cert-card-info"><b>{c.name}</b><span>Sertifika</span></div>
           </a>
         ))}
