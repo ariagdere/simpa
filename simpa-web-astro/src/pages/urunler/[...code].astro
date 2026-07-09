@@ -84,7 +84,6 @@ const quickItems = [
   byRangeKey['CIVATA'],
 ].filter(Boolean);
 
-const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...related.map((r) => ({ ...r, isCompatible: false }))];
 ---
 <Layout title={`${title} — Simpa Elektrik`} lang={lang}>
 
@@ -222,18 +221,45 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
   {compatible.length > 0 && (
     <div class="rel-sec"><div class="rel-in">
       <div class="rel-title">Uyumlu Ürünler</div>
-      <div class="rel-grid">{compatible.map((c) => <a href={`/urunler/${c.prod_code}`} class="rel-card"><div class="rel-card-name">{c.title}</div></a>)}</div>
+      <div class="cb-carousel">
+        {compatible.map((c) => (
+          <a href={`/urunler/${c.prod_code}`} class="cb-card">
+            <div class="cb-card-img">{c.image && <img src={c.image} alt={c.title} />}</div>
+            <div class="cb-card-body">
+              <div class="cb-card-code">{c.prod_code}</div>
+              <div class="cb-card-name">{c.title}</div>
+              {(c.kesitRange || c.civataRange) && (
+                <div class="cb-card-specs">
+                  {c.kesitRange && <div class="cb-card-spec">Kesit: <b>{c.kesitRange} mm²</b></div>}
+                  {c.civataRange && <div class="cb-card-spec">Civata: <b>{c.civataRange}</b></div>}
+                </div>
+              )}
+              <span class="cb-card-cta">Teknik veriler →</span>
+            </div>
+          </a>
+        ))}
+      </div>
     </div></div>
   )}
 
   {related.length > 0 && (
     <div class="rel-sec"><div class="rel-in">
       <div class="rel-title">Bu Kategorideki Diğer Ürünler</div>
-      <div class="rel-grid">
+      <div class="cb-carousel">
         {related.map((r) => (
-          <a href={`/urunler/${r.prod_code}`} class="rel-card">
-            {r.image && <div class="rel-card-img"><img src={r.image} alt={r.title} /></div>}
-            <div class="rel-card-name">{r.title}</div>
+          <a href={`/urunler/${r.prod_code}`} class="cb-card">
+            <div class="cb-card-img">{r.image && <img src={r.image} alt={r.title} />}</div>
+            <div class="cb-card-body">
+              <div class="cb-card-code">{r.prod_code}</div>
+              <div class="cb-card-name">{r.title}</div>
+              {(r.kesitRange || r.civataRange) && (
+                <div class="cb-card-specs">
+                  {r.kesitRange && <div class="cb-card-spec">Kesit: <b>{r.kesitRange} mm²</b></div>}
+                  {r.civataRange && <div class="cb-card-spec">Civata: <b>{r.civataRange}</b></div>}
+                </div>
+              )}
+              <span class="cb-card-cta">Teknik veriler →</span>
+            </div>
           </a>
         ))}
       </div>
@@ -349,15 +375,48 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
     </div>
   </div>
 
-  {relItems.length > 0 && (
+  {compatible.length > 0 && (
     <div class="m-rel">
-      <div class="m-rel-title">{compatible.length > 0 ? 'Uyumlu ve İlgili Ürünler' : 'Diğer Ürünler'}</div>
-      <div class="m-rel-list">
-        {relItems.map((r) => (
-          <a href={`/urunler/${r.prod_code}`} class="m-rel-item">
-            {r.image && <div class="m-rel-img"><img src={r.image} alt={r.title} /></div>}
-            <div style="flex:1"><div class="m-rel-name">{r.title}</div>{r.isCompatible && <div class="m-rel-sub">Uyumlu ürün</div>}</div>
-            <span class="m-rel-arr">›</span>
+      <div class="m-rel-title">Uyumlu Ürünler</div>
+      <div class="m-cb-carousel">
+        {compatible.map((c) => (
+          <a href={`/urunler/${c.prod_code}`} class="m-cb-card">
+            <div class="m-cb-img">{c.image && <img src={c.image} alt={c.title} />}</div>
+            <div class="m-cb-body2">
+              <div class="m-cb-code">{c.prod_code}</div>
+              <div class="m-cb-name">{c.title}</div>
+              {(c.kesitRange || c.civataRange) && (
+                <div class="m-cb-spec">
+                  {c.kesitRange && <>Kesit: <b>{c.kesitRange} mm²</b></>}
+                  {c.kesitRange && c.civataRange && ' · '}
+                  {c.civataRange && <>Civata: <b>{c.civataRange}</b></>}
+                </div>
+              )}
+            </div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+
+  {related.length > 0 && (
+    <div class="m-rel">
+      <div class="m-rel-title">Bu Kategorideki Diğer Ürünler</div>
+      <div class="m-cb-carousel">
+        {related.map((r) => (
+          <a href={`/urunler/${r.prod_code}`} class="m-cb-card">
+            <div class="m-cb-img">{r.image && <img src={r.image} alt={r.title} />}</div>
+            <div class="m-cb-body2">
+              <div class="m-cb-code">{r.prod_code}</div>
+              <div class="m-cb-name">{r.title}</div>
+              {(r.kesitRange || r.civataRange) && (
+                <div class="m-cb-spec">
+                  {r.kesitRange && <>Kesit: <b>{r.kesitRange} mm²</b></>}
+                  {r.kesitRange && r.civataRange && ' · '}
+                  {r.civataRange && <>Civata: <b>{r.civataRange}</b></>}
+                </div>
+              )}
+            </div>
           </a>
         ))}
       </div>
