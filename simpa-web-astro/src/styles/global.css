@@ -9,6 +9,8 @@
 @media (max-width:860px){
   .desktop-only{display:none}
   .mobile-only{display:block}
+  .wrap{padding:0;display:block}
+  .frame{max-width:100%;border-radius:0;box-shadow:none}
 }
 :root{
   --navy:#1a2e4a;--blue:#1e5fa8;--blue-l:#2e7dd4;
@@ -364,7 +366,7 @@ nav{display:flex;gap:4px;margin-left:auto}
 .m-tbl-sec{padding:14px 16px}
 .m-tbl-intro{font-size:13px;color:var(--g600);margin-bottom:12px;line-height:1.6}
 .m-filter-row{display:flex;gap:8px;margin-bottom:10px}
-.m-filter-sel{flex:1;border:1px solid var(--g200);border-radius:5px;padding:8px 10px;font-size:13px;font-family:var(--font);background:#fff;color:var(--g800)}
+.m-filter-sel{flex:1;min-width:0;border:1px solid var(--g200);border-radius:5px;padding:8px 10px;font-size:13px;font-family:var(--font);background:#fff;color:var(--g800)}
 .mv-toggle{display:flex;gap:6px;margin-bottom:14px}
 .mv-btn{flex:1;padding:7px 4px;font-size:11px;font-weight:700;border-radius:5px;border:0.5px solid var(--g200);cursor:pointer;font-family:var(--font);background:var(--g50);color:var(--g600);transition:.15s}
 .mv-btn.on{background:var(--navy);color:#fff;border-color:var(--navy)}
