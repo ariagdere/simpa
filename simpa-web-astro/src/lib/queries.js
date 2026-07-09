@@ -78,6 +78,20 @@ export async function getImages(db, productId) {
 
 /** Sertifika rozetleri. */
 /** Tüm sertifikalar (ana sayfa "Sertifikalar & Belgeler" bölümü için, ürüne bağlı değil). */
+/** Katalog (marka bazlı) ve fiyat listesi (genel) URL'lerini döner. brand=null ise Simpa varsayılır. */
+export async function getKeyDocuments(db, brand, lang) {
+  const urlCol = lang === 'en' ? 'file_url_en' : 'file_url_tr';
+  const targetBrand = brand || 'Simpa';
+  const [catalog, priceList] = await Promise.all([
+    db.prepare(`SELECT COALESCE(${urlCol}, file_url_tr) as url FROM documents WHERE doc_type = 'katalog' AND brand = ?`).bind(targetBrand).first(),
+    db.prepare(`SELECT COALESCE(${urlCol}, file_url_tr) as url FROM documents WHERE doc_type = 'fiyat_listesi' LIMIT 1`).first(),
+  ]);
+  return {
+    catalogUrl: catalog?.url || null,
+    priceListUrl: priceList?.url || null,
+  };
+}
+
 export async function getAllCertificates(db) {
   const { results } = await db.prepare('SELECT tag, name, file_url_tr, file_url_en, image_url FROM certificates').all();
   return results;
