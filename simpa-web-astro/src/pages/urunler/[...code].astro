@@ -3,6 +3,7 @@
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
+import ScrollToTopButton from '../../components/ScrollToTopButton.astro';
 import {
   getProduct,
   getProductSpecs,
@@ -428,6 +429,7 @@ const quickItems = [
       </div>
     </div>
   )}
+  <ScrollToTopButton />
 </div>
 <div class="img-lightbox" id="imgLightbox">
   <button class="img-lightbox-close" id="imgLightboxClose">✕</button>
