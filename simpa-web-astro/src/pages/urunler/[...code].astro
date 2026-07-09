@@ -60,6 +60,12 @@ const filterOptions = kunyeFiltreCols
 
 const displayCols = [...kunyeFiltreCols, ...boyutCols, ...ekOzellikCols, ...adetAgirlikCols];
 
+// Masaüstü tablo başlığı gruplama: BOYUTLAR / KUTU / KOLİ çift satırlı grup başlıkları için
+const kutuCols = adetAgirlikCols.filter((c) => c.attr_key === 'KUTU_ADEDI' || c.attr_key === 'KUTU_AGIRLIGI');
+const koliCols = adetAgirlikCols.filter((c) => c.attr_key === 'KOLI_ADEDI' || c.attr_key === 'KOLI_AGIRLIGI');
+const singleAdetCols = adetAgirlikCols.filter((c) => !['KUTU_ADEDI', 'KUTU_AGIRLIGI', 'KOLI_ADEDI', 'KOLI_AGIRLIGI'].includes(c.attr_key));
+const subLabel = (c) => (c.attr_key.endsWith('ADEDI') ? 'Adet' : 'Ağırlık');
+
 const galleryImages = drawingUrl ? [...images, { file_url: drawingUrl, is_primary: 0, is_drawing: true }] : images;
 const primaryImage = images.find((i) => i.is_primary) || images[0] || galleryImages[0];
 const title = lang === 'en' ? product.title_en : product.title_tr;
@@ -166,15 +172,30 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
               <table class="tbl" id="variantTbl">
                 <thead>
                   <tr>
-                    <th>Ürün Kodu</th>
-                    {displayCols.map((c) => <th style="text-align:right">{c.label}{c.unit ? ` (${c.unit})` : ''}</th>)}
+                    <th rowspan="2">Ürün Kodu</th>
+                    {kunyeFiltreCols.map((c) => <th rowspan="2" style="text-align:right">{c.label}</th>)}
+                    {boyutCols.length > 0 && <th colspan={boyutCols.length} style="text-align:center">Boyutlar (mm)</th>}
+                    {ekOzellikCols.map((c) => <th rowspan="2" style="text-align:right">{c.label}{c.unit ? ` (${c.unit})` : ''}</th>)}
+                    {singleAdetCols.map((c) => <th rowspan="2" style="text-align:right">{c.label}</th>)}
+                    {kutuCols.length > 0 && <th colspan={kutuCols.length} style="text-align:center">Kutu</th>}
+                    {koliCols.length > 0 && <th colspan={koliCols.length} style="text-align:center">Koli</th>}
+                  </tr>
+                  <tr>
+                    {boyutCols.map((c) => <th style="text-align:right">{c.label}</th>)}
+                    {kutuCols.map((c) => <th style="text-align:right">{subLabel(c)}</th>)}
+                    {koliCols.map((c) => <th style="text-align:right">{subLabel(c)}</th>)}
                   </tr>
                 </thead>
                 <tbody>
                   {variantTable.rows.map((row, i) => (
                     <tr class={i % 2 === 1 ? 'alt' : ''} data-filters={JSON.stringify(Object.fromEntries(filterOptions.map((f) => [f.attr_key, row.values[f.attr_key] || ''])))}>
                       <td>{row.variant_code}</td>
-                      {displayCols.map((c) => <td class="d">{row.values[c.attr_key] ?? '—'}</td>)}
+                      {kunyeFiltreCols.map((c) => <td class="d">{row.values[c.attr_key] ?? '—'}</td>)}
+                      {boyutCols.map((c) => <td class="d">{row.values[c.attr_key] ?? '—'}</td>)}
+                      {ekOzellikCols.map((c) => <td class="d">{row.values[c.attr_key] ?? '—'}</td>)}
+                      {singleAdetCols.map((c) => <td class="d">{row.values[c.attr_key] ?? '—'}</td>)}
+                      {kutuCols.map((c) => <td class="d">{row.values[c.attr_key] ?? '—'}</td>)}
+                      {koliCols.map((c) => <td class="d">{row.values[c.attr_key] ?? '—'}</td>)}
                     </tr>
                   ))}
                 </tbody>
@@ -289,10 +310,12 @@ const relItems = [...compatible.map((c) => ({ ...c, isCompatible: true })), ...r
               <div class="row-card" data-mfilters={JSON.stringify(Object.fromEntries(filterOptions.map((f) => [f.attr_key, row.values[f.attr_key] || ''])))}>
                 <div class="rc-hdr">
                   <span class="rc-code">{row.variant_code}</span>
-                  {(row.values['CIVATA'] || row.values['KABLO_KESITI']) && <span class="rc-bolt">{[row.values['CIVATA'], row.values['KABLO_KESITI'] && `${row.values['KABLO_KESITI']} mm²`].filter(Boolean).join(' · ')}</span>}
+                  {kunyeFiltreCols.some((c) => row.values[c.attr_key]) && (
+                    <span class="rc-bolt">{kunyeFiltreCols.map((c) => (row.values[c.attr_key] ? `${row.values[c.attr_key]}${c.unit ? ` ${c.unit}` : ''}` : null)).filter(Boolean).join(' · ')}</span>
+                  )}
                 </div>
                 <div class="rc-dims">
-                  {displayCols.filter((c) => !['CIVATA', 'KABLO_KESITI', 'KUTU_ADEDI', 'KUTU_AGIRLIGI', 'KOLI_ADEDI', 'KOLI_AGIRLIGI', 'PAKET_ADEDI', 'POSET_ADEDI', 'CUVAL_ADEDI'].includes(c.attr_key)).map((c) => (
+                  {[...boyutCols, ...ekOzellikCols].map((c) => (
                     <div class="rc-dim"><div class="rc-dim-l">{c.label}</div><div class="rc-dim-v">{row.values[c.attr_key] ?? '—'}</div></div>
                   ))}
                 </div>
