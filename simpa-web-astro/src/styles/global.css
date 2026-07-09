@@ -655,8 +655,10 @@ nav{display:flex;gap:4px;margin-left:auto}
 ═══════════════════════════ */
 .cb-header{background:var(--navy);padding:32px 0 36px}
 .cb-header-in{max-width:1140px;margin:0 auto;padding:0 24px}
-.cb-header-in h1{font-family:var(--cond);font-size:30px;font-weight:700;color:#fff;margin-bottom:8px}
+.cb-header-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:14px;margin-bottom:8px}
+.cb-header-in h1{font-family:var(--cond);font-size:30px;font-weight:700;color:#fff;margin-bottom:0}
 .cb-header-in p{font-size:14px;color:rgba(255,255,255,.65);max-width:600px;line-height:1.6;margin-bottom:24px}
+.cb-tab{text-decoration:none;display:inline-block}
 .cb-tabs{max-width:1140px;margin:0 auto;padding:0 24px;display:flex;gap:8px;flex-wrap:wrap;padding-bottom:24px}
 .cb-tab{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);padding:9px 18px;border-radius:22px;font-size:13px;font-weight:600;cursor:pointer;transition:.18s;white-space:nowrap;font-family:var(--font)}
 .cb-tab:hover{background:rgba(255,255,255,.15);color:#fff}
