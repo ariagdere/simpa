@@ -1,28 +1,166 @@
 ---
 // src/pages/index.astro
 export const prerender = false;
-import Layout from '../layouts/Layout.astro';
 
+import Layout from '../layouts/Layout.astro';
+import { getAllCertificates, getHomeStats } from '../lib/queries.js';
 import { env } from 'cloudflare:workers';
+
+const lang = 'tr';
 const db = env.DB;
-const { results: products } = await db
-  .prepare(
-    `SELECT prod_code, title_tr FROM products WHERE title_tr IS NOT NULL AND is_active = 1 ORDER BY sort_order LIMIT 12`
-  )
-  .all();
+
+const [certificates, stats] = await Promise.all([getAllCertificates(db), getHomeStats(db)]);
+
+// 1.328 varyant + 12 alet gibi tam sayıyı pazarlama diliyle yuvarlıyoruz (örn. 1340 -> "1.300+")
+const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 ---
-<Layout title="Simpa Elektrik">
-  <div style="max-width:1100px;margin:40px auto;padding:0 20px">
-    <h1 style="font-family:var(--cond);font-size:28px;color:var(--navy);margin-bottom:20px">
-      Ürünler (geçici liste — Faz 2 devam ediyor)
-    </h1>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px">
-      {products.map((p) => (
-        <a href={`/urunler/${p.prod_code}`} style="display:block;padding:16px;border:1px solid var(--g200);border-radius:8px;text-decoration:none;color:var(--navy);font-weight:600;background:#fff">
-          {p.title_tr}
-          <div style="font-size:12px;color:var(--g400);margin-top:4px;font-weight:400">{p.prod_code}</div>
-        </a>
-      ))}
+<Layout title="Simpa Elektrik — Güvenilir Elektrik Bağlantı Çözümleri" lang={lang}>
+
+<!-- ══════════ MASAÜSTÜ ══════════ -->
+<div class="desktop-only">
+  <div class="hero"><div class="hero-in">
+    <div class="hero-l">
+      <div class="badge">1977'den bu yana</div>
+      <h1>Güvenilir <em>Elektrik Bağlantı</em> Çözümleri</h1>
+      <p>Sıkmalı kablo pabuçları, baralar ve bağlantı ekipmanlarında yılların üretim deneyimi. ISO 9001, CE ve EAC sertifikalı ürünler.</p>
+      <div class="hero-btns">
+        <a href="/kategori/" class="btn-p">Ürünleri İncele →</a>
+        <a href="/belgeler" class="btn-s">📄 Katalog İndir</a>
+      </div>
+    </div>
+  </div></div>
+
+  <div class="stats-bar"><div class="stats-bar-in">
+    <div class="stat"><div class="stat-n">45<span>+</span></div><div class="stat-l">Yıl deneyim</div></div>
+    <div class="stat"><div class="stat-n">{varietyRounded}<span>+</span></div><div class="stat-l">Ürün çeşidi</div></div>
+    <div class="stat"><div class="stat-n">30<span>+</span></div><div class="stat-l">Ülkeye ihracat</div></div>
+    <div class="stat"><div class="stat-n">{stats.certCount}<span>+</span></div><div class="stat-l">Uluslararası sertifika</div></div>
+  </div></div>
+
+  <div class="sec"><div class="sec-in">
+    <div class="hub-grid">
+      <a href="/kategori/" class="hub-card">
+        <div class="hub-img"><div class="hub-doc-icon">📦</div></div>
+        <div class="hub-body">
+          <div class="hub-title">Ürünlerimiz</div>
+          <div class="hub-sub">{stats.catCount} kategori, {varietyRounded}+ ürün çeşidi. Teknik verilerle birlikte tüm katalog.</div>
+          <span class="hub-cta">İncele <span class="hub-arr">→</span></span>
+        </div>
+      </a>
+      <a href="/belgeler" class="hub-card accent-blue">
+        <div class="hub-img"><div class="hub-doc-icon">📄</div></div>
+        <div class="hub-body">
+          <div class="hub-title">Ürün Kataloğu</div>
+          <div class="hub-sub">Güncel ürün kataloğumuzu PDF olarak indirin, ekibinizle paylaşın.</div>
+          <span class="hub-cta">PDF İndir <span class="hub-arr">↓</span></span>
+        </div>
+      </a>
+      <a href="/belgeler" class="hub-card accent-navy">
+        <div class="hub-img hub-img-doc"><div class="hub-doc-icon">📊</div></div>
+        <div class="hub-body">
+          <div class="hub-title">Fiyat Listesi</div>
+          <div class="hub-sub">Güncel fiyat listesi, Excel formatında hazır.</div>
+          <span class="hub-cta">Excel İndir <span class="hub-arr">↓</span></span>
+        </div>
+      </a>
+    </div>
+  </div></div>
+
+  <div class="about"><div class="about-in">
+    <div>
+      <div class="about-lbl">Kurumsal</div>
+      <div class="about-title">1977'den Bugüne Kesintisiz Üretim</div>
+      <div class="about-text">Simpa Elektrik, 1977'de kurulan köklü bir Türk üreticisidir. Modern tesislerimizde elektrik bağlantı malzemeleri üretiyoruz.</div>
+    </div>
+    <div class="tl">
+      <div class="tl-item"><div class="tl-dot">77</div><div><div class="tl-year">1977</div><div class="tl-txt">Simpa Kollektif Şirketi olarak kuruldu</div></div></div>
+      <div class="tl-item"><div class="tl-dot">84</div><div><div class="tl-year">1984</div><div class="tl-txt">Anonim şirkete dönüştürüldü</div></div></div>
+      <div class="tl-item"><div class="tl-dot">CE</div><div><div class="tl-year">2000s</div><div class="tl-txt">CE, EAC ve ISO sertifikaları alındı</div></div></div>
+      <div class="tl-item"><div class="tl-dot">🌍</div><div><div class="tl-year">Bugün</div><div class="tl-txt">30+ ülkeye ihracat, {varietyRounded}+ ürün çeşidi</div></div></div>
+    </div>
+  </div></div>
+
+  {certificates.length > 0 && (
+    <div class="certs"><div class="sec-in">
+      <div class="sec-hdr">
+        <div><div class="sec-title">Sertifikalar &amp; <span>Belgeler</span></div><div class="sec-sub">Tüm ürünlerimiz uluslararası standartlara uygun test ve sertifikalandırılmıştır</div></div>
+        <a href="/sertifikalar" class="sec-link">Tüm Belgeler →</a>
+      </div>
+      <div class="cert-grid">
+        {certificates.map((c) => (
+          <a href={c.file_url_tr || c.file_url_en} target="_blank" rel="noopener" class="cert-card">
+            <div class="cert-card-img"><div class="iso-placeholder"><div class="iso-icon">{c.tag}</div></div></div>
+            <div class="cert-card-info"><div class="cert-card-name">{c.name}</div><div class="cert-card-sub">Sertifika / Belge</div></div>
+          </a>
+        ))}
+      </div>
+    </div></div>
+  )}
+</div>
+
+<!-- ══════════ MOBİL ══════════ -->
+<div class="mobile-only">
+  <div class="m-hero">
+    <div class="m-hero-body">
+      <div class="m-badge">1977'den bu yana</div>
+      <h1>Güvenilir <em>Elektrik Bağlantı</em> Çözümleri</h1>
+      <p>ISO 9001, CE ve EAC sertifikalı kablo pabuçları, baralar ve bağlantı ekipmanları.</p>
+      <div class="m-hero-btns"><a href="/kategori/" class="m-btn-p">Ürünleri İncele</a><a href="/belgeler" class="m-btn-s">Katalog</a></div>
     </div>
   </div>
+
+  <div class="m-stats">
+    <div class="m-stat"><div class="m-stat-n">45<span>+</span></div><div class="m-stat-l">Yıl</div></div>
+    <div class="m-stat"><div class="m-stat-n">{varietyRounded}<span>+</span></div><div class="m-stat-l">Ürün</div></div>
+    <div class="m-stat"><div class="m-stat-n">30<span>+</span></div><div class="m-stat-l">Ülke</div></div>
+    <div class="m-stat"><div class="m-stat-n">{stats.certCount}<span>+</span></div><div class="m-stat-l">Sertifika</div></div>
+  </div>
+
+  <div class="m-sec">
+    <div class="m-hub-grid">
+      <a href="/kategori/" class="m-hub-card">
+        <div class="m-hub-body">
+          <div class="m-hub-title">Ürünlerimiz</div>
+          <div class="m-hub-sub">{stats.catCount} kategori, {varietyRounded}+ ürün çeşidi</div>
+          <span class="m-hub-cta">İncele <span class="m-hub-arr">→</span></span>
+        </div>
+      </a>
+      <a href="/belgeler" class="m-hub-card accent-blue">
+        <div class="m-hub-body">
+          <div class="m-hub-title">Ürün Kataloğu</div>
+          <div class="m-hub-sub">Güncel katalog, PDF formatında</div>
+          <span class="m-hub-cta">PDF İndir <span class="m-hub-arr">↓</span></span>
+        </div>
+      </a>
+      <a href="/belgeler" class="m-hub-card accent-navy">
+        <div class="m-hub-img m-hub-img-doc"><div class="m-hub-doc-icon">📊</div></div>
+        <div class="m-hub-body">
+          <div class="m-hub-title">Fiyat Listesi</div>
+          <div class="m-hub-sub">Excel formatında hazır</div>
+          <span class="m-hub-cta">Excel İndir <span class="m-hub-arr">↓</span></span>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <div class="m-about">
+    <div class="m-about-lbl">Kurumsal</div>
+    <h2>1977'den Bugüne</h2>
+    <p>Modern tesislerimizde üretilen tüm ürünler uluslararası standartlara uygun test ve sertifikalandırılmaktadır.</p>
+  </div>
+
+  {certificates.length > 0 && (
+    <div class="m-certs">
+      <div class="m-certs-title">Sertifikalar &amp; Belgeler</div>
+      <div class="m-cert-scroll">
+        {certificates.map((c) => (
+          <a href={c.file_url_tr || c.file_url_en} target="_blank" rel="noopener" class="m-cert-card">
+            <div class="m-cert-card-img"><div class="iso-placeholder"><div class="iso-icon" style="width:40px;height:40px;font-size:9px">{c.tag}</div></div></div>
+            <div class="m-cert-card-info"><b>{c.name}</b><span>Sertifika</span></div>
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
 </Layout>
