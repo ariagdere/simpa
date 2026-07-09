@@ -667,6 +667,10 @@ nav{display:flex;gap:4px;margin-left:auto}
 .cb-grid-count{font-size:13px;color:var(--g600)}
 .cb-grid-count strong{color:var(--blue)}
 .cb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.cb-carousel{display:flex;gap:16px;overflow-x:auto;padding-bottom:10px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.cb-carousel .cb-card{flex:0 0 240px;scroll-snap-align:start}
+.m-cb-carousel{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}
+.m-cb-carousel .m-cb-card{flex:0 0 170px;scroll-snap-align:start}
 .cb-card{background:#fff;border:1px solid var(--g200);border-radius:10px;overflow:hidden;text-decoration:none;transition:.2s;display:flex;flex-direction:column}
 .cb-card:hover{box-shadow:var(--sh-lg);transform:translateY(-3px);border-color:transparent}
 .cb-card-img{width:100%;aspect-ratio:1/1;background:var(--g50);display:flex;align-items:center;justify-content:center;padding:18px}
