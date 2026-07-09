@@ -9,8 +9,6 @@
 @media (max-width:860px){
   .desktop-only{display:none}
   .mobile-only{display:block}
-  .wrap{padding:0;display:block}
-  .frame{max-width:100%;border-radius:0;box-shadow:none}
 }
 :root{
   --navy:#1a2e4a;--blue:#1e5fa8;--blue-l:#2e7dd4;
@@ -82,6 +80,10 @@ body{font-family:var(--font);background:#e0e6f0;color:var(--g800);font-size:15px
 .wrap{display:flex;justify-content:center;padding:24px 16px 48px}
 .frame{width:100%;max-width:1200px;background:#fff;border-radius:10px;box-shadow:0 12px 48px rgba(26,46,74,.18);overflow:clip;transition:max-width .4s ease}
 .frame.mobile{max-width:390px}
+@media (max-width:860px){
+  .wrap{padding:0;display:block}
+  .frame{max-width:100%;border-radius:0;box-shadow:none}
+}
 
 /* ── PAGES ── */
 .pg{display:none}.pg.on{display:block}
