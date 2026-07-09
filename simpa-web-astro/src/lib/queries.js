@@ -175,25 +175,20 @@ export async function getCategoriesWithCounts(db, lang) {
   return results;
 }
 
-/** Bir kategorideki tüm ürünler, her biri için Kesit/Civata aralığı (varsa) hesaplanmış halde. */
-export async function getProductsInCategory(db, categorySlug, lang) {
-  const titleCol = lang === 'en' ? 'title_en' : 'title_tr';
-  const category = await db.prepare('SELECT id, name_tr, name_en FROM categories WHERE slug = ?').bind(categorySlug).first();
-  if (!category) return { category: null, products: [] };
+function formatRange(set, isNumeric) {
+  if (!set || set.size === 0) return null;
+  const vals = [...set];
+  if (isNumeric) {
+    const nums = vals.map((v) => parseFloat(v.replace(',', '.'))).filter((n) => !isNaN(n)).sort((a, b) => a - b);
+    return nums.length > 1 ? `${nums[0]}–${nums[nums.length - 1]}` : `${nums[0]}`;
+  }
+  const nums = vals.map((v) => ({ raw: v, n: parseInt(v.replace(/\D/g, ''), 10) })).filter((x) => !isNaN(x.n)).sort((a, b) => a.n - b.n);
+  return nums.length > 1 ? `${nums[0].raw}–${nums[nums.length - 1].raw}` : nums[0]?.raw;
+}
 
-  const { results: products } = await db
-    .prepare(
-      `SELECT p.id, p.prod_code, p.${titleCol} as title,
-              (SELECT file_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY is_primary DESC, sort_order LIMIT 1) as image
-       FROM products p
-       WHERE p.category_id = ? AND p.${titleCol} IS NOT NULL AND p.is_active = 1
-       ORDER BY p.sort_order`
-    )
-    .bind(category.id)
-    .all();
-
-  if (products.length === 0) return { category, products: [] };
-
+/** Verilen ürün listesine (her birinde .id olmalı) Kesit/Civata aralığını ekler. */
+async function enrichWithRanges(db, products) {
+  if (products.length === 0) return products;
   const productIds = products.map((p) => p.id);
   const placeholders = productIds.map(() => '?').join(',');
   const { results: ranges } = await db
@@ -213,50 +208,69 @@ export async function getProductsInCategory(db, categorySlug, lang) {
     rangesByProduct.get(r.product_id)[r.attr_key].add(r.attr_value);
   }
 
-  const formatRange = (set, isNumeric) => {
-    if (!set || set.size === 0) return null;
-    const vals = [...set];
-    if (isNumeric) {
-      const nums = vals.map((v) => parseFloat(v.replace(',', '.'))).filter((n) => !isNaN(n)).sort((a, b) => a - b);
-      return nums.length > 1 ? `${nums[0]}–${nums[nums.length - 1]}` : `${nums[0]}`;
-    }
-    const nums = vals.map((v) => ({ raw: v, n: parseInt(v.replace(/\D/g, ''), 10) })).filter((x) => !isNaN(x.n)).sort((a, b) => a.n - b.n);
-    return nums.length > 1 ? `${nums[0].raw}–${nums[nums.length - 1].raw}` : nums[0]?.raw;
-  };
-
-  const enriched = products.map((p) => {
+  return products.map((p) => {
     const r = rangesByProduct.get(p.id);
-    return {
-      ...p,
-      kesitRange: formatRange(r?.KABLO_KESITI, true),
-      civataRange: formatRange(r?.CIVATA, false),
-    };
+    return { ...p, kesitRange: formatRange(r?.KABLO_KESITI, true), civataRange: formatRange(r?.CIVATA, false) };
   });
+}
 
-  return { category, products: enriched };
+/** Bir kategorideki tüm ürünler, her biri için Kesit/Civata aralığı (varsa) hesaplanmış halde. */
+export async function getProductsInCategory(db, categorySlug, lang) {
+  const titleCol = lang === 'en' ? 'title_en' : 'title_tr';
+  const category = await db.prepare('SELECT id, name_tr, name_en FROM categories WHERE slug = ?').bind(categorySlug).first();
+  if (!category) return { category: null, products: [] };
+
+  const { results: products } = await db
+    .prepare(
+      `SELECT p.id, p.prod_code, p.${titleCol} as title,
+              (SELECT file_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY is_primary DESC, sort_order LIMIT 1) as image
+       FROM products p
+       WHERE p.category_id = ? AND p.${titleCol} IS NOT NULL AND p.is_active = 1
+       ORDER BY p.sort_order`
+    )
+    .bind(category.id)
+    .all();
+
+  return { category, products: await enrichWithRanges(db, products) };
+}
+
+/** Kategori filtresi olmadan TÜM aktif ürünler (kategori seçilmediğinde varsayılan görünüm). */
+export async function getAllProducts(db, lang) {
+  const titleCol = lang === 'en' ? 'title_en' : 'title_tr';
+  const { results: products } = await db
+    .prepare(
+      `SELECT p.id, p.prod_code, p.${titleCol} as title,
+              (SELECT file_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY is_primary DESC, sort_order LIMIT 1) as image
+       FROM products p
+       WHERE p.${titleCol} IS NOT NULL AND p.is_active = 1
+       ORDER BY p.sort_order`
+    )
+    .all();
+  return enrichWithRanges(db, products);
 }
 
 export async function getCompatibleProducts(db, productId, lang) {
   const titleCol = lang === 'en' ? 'title_en' : 'title_tr';
   const { results } = await db
     .prepare(
-      `SELECT p.prod_code, p.${titleCol} as title
+      `SELECT p.id, p.prod_code, p.${titleCol} as title,
+              (SELECT file_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY is_primary DESC, sort_order LIMIT 1) as image
        FROM product_compatibility pcm
        JOIN products p ON p.id = pcm.compatible_product_id
        WHERE pcm.product_id = ? AND p.${titleCol} IS NOT NULL AND p.is_active = 1`
     )
     .bind(productId)
     .all();
-  return results;
+  return enrichWithRanges(db, results);
 }
 
 /** Aynı kategorideki diğer ürünler (mevcut ürün hariç). */
-export async function getRelatedProducts(db, categoryId, excludeProductId, lang, limit = 6) {
+export async function getRelatedProducts(db, categoryId, excludeProductId, lang, limit = 12) {
   if (!categoryId) return [];
   const titleCol = lang === 'en' ? 'title_en' : 'title_tr';
   const { results } = await db
     .prepare(
-      `SELECT p.prod_code, p.${titleCol} as title,
+      `SELECT p.id, p.prod_code, p.${titleCol} as title,
               (SELECT file_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY is_primary DESC, sort_order LIMIT 1) as image
        FROM products p
        WHERE p.category_id = ? AND p.id != ? AND p.${titleCol} IS NOT NULL AND p.is_active = 1
@@ -264,5 +278,5 @@ export async function getRelatedProducts(db, categoryId, excludeProductId, lang,
     )
     .bind(categoryId, excludeProductId, limit)
     .all();
-  return results;
+  return enrichWithRanges(db, results);
 }
