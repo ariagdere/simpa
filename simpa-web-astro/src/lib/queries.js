@@ -79,7 +79,7 @@ export async function getImages(db, productId) {
 /** Sertifika rozetleri. */
 /** Tüm sertifikalar (ana sayfa "Sertifikalar & Belgeler" bölümü için, ürüne bağlı değil). */
 export async function getAllCertificates(db) {
-  const { results } = await db.prepare('SELECT tag, name, file_url_tr, file_url_en FROM certificates').all();
+  const { results } = await db.prepare('SELECT tag, name, file_url_tr, file_url_en, image_url FROM certificates').all();
   return results;
 }
 
