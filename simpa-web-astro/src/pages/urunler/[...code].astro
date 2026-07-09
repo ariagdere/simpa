@@ -378,6 +378,7 @@ const quickItems = [
   {compatible.length > 0 && (
     <div class="m-rel">
       <div class="m-rel-title">Uyumlu Ürünler</div>
+      <div class="m-cb-carousel-wrap">
       <div class="m-cb-carousel">
         {compatible.map((c) => (
           <a href={`/urunler/${c.prod_code}`} class="m-cb-card">
@@ -396,12 +397,15 @@ const quickItems = [
           </a>
         ))}
       </div>
+      {compatible.length > 2 && <div class="m-cb-scroll-hint">›</div>}
+      </div>
     </div>
   )}
 
   {related.length > 0 && (
     <div class="m-rel">
       <div class="m-rel-title">Bu Kategorideki Diğer Ürünler</div>
+      <div class="m-cb-carousel-wrap">
       <div class="m-cb-carousel">
         {related.map((r) => (
           <a href={`/urunler/${r.prod_code}`} class="m-cb-card">
@@ -419,6 +423,8 @@ const quickItems = [
             </div>
           </a>
         ))}
+      </div>
+      {related.length > 2 && <div class="m-cb-scroll-hint">›</div>}
       </div>
     </div>
   )}
