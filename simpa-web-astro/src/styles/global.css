@@ -130,7 +130,6 @@ nav{display:flex;gap:4px;margin-left:auto}
 .ftr-social{display:flex;gap:12px;margin-top:16px}
 .ftr-social a{color:rgba(255,255,255,.55);transition:.2s}
 .ftr-social a:hover{color:#fff}
-.ftr-cat-cols{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
 .ftr-col a{display:block;color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;margin-bottom:6px}
 .ftr-col a:hover{color:#fff}
 .ftr-wa-btn{display:inline-flex !important;align-items:center;gap:8px;background:#25D366;color:#fff !important;padding:10px 16px;border-radius:6px;font-size:13px;font-weight:600;margin-top:16px;transition:.2s}
