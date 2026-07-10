@@ -92,6 +92,15 @@ export async function getKeyDocuments(db, brand, lang) {
   };
 }
 
+/** İletişim formu ürün dropdown'ı için hafif liste (kod + başlık). */
+export async function getProductOptionsList(db, lang) {
+  const titleCol = lang === 'en' ? 'title_en' : 'title_tr';
+  const { results } = await db
+    .prepare(`SELECT prod_code, ${titleCol} as title FROM products WHERE ${titleCol} IS NOT NULL AND is_active = 1 ORDER BY sort_order`)
+    .all();
+  return results;
+}
+
 export async function getAllCertificates(db) {
   const { results } = await db.prepare('SELECT tag, name, file_url_tr, file_url_en, image_url FROM certificates').all();
   return results;
