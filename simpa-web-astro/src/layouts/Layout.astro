@@ -1,7 +1,7 @@
 ---
 // src/layouts/Layout.astro
 import '../styles/global.css';
-import { getCategoriesWithCounts } from '../lib/queries.js';
+import { getCategoriesWithCounts, getKeyDocuments } from '../lib/queries.js';
 import { env } from 'cloudflare:workers';
 
 interface Props {
@@ -13,6 +13,7 @@ const path = Astro.url.pathname;
 const isActive = (prefix) => (prefix === '/' ? path === '/' : path.startsWith(prefix));
 
 const categories = await getCategoriesWithCounts(env.DB, lang);
+const keyDocs = await getKeyDocuments(env.DB, null, lang);
 
 const WHATSAPP_URL = 'https://api.whatsapp.com/send/?phone=905544972085&text&app_absent=0';
 const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
@@ -49,7 +50,7 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
     <nav>
       <a href="/" class={`nav-a nav-home${isActive('/') ? ' cur' : ''}`} aria-label={lang === 'en' ? 'Home' : 'Ana Sayfa'}><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11.47 3.84a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.06l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 0 0 1.061 1.06l8.69-8.69Z"/><path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.43Z"/></svg></a>
       <a href="/kategori/" class={`nav-a${isActive('/kategori') || isActive('/urunler') ? ' cur' : ''}`}>{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</a>
-      <a href="/belgeler" class={`nav-a${isActive('/belgeler') ? ' cur' : ''}`}>{lang === 'en' ? 'Catalog' : 'Katalog'}</a>
+      <a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="nav-a">{lang === 'en' ? 'Catalog' : 'Katalog'}</a>
       <a href="/sertifikalar" class={`nav-a${isActive('/sertifikalar') ? ' cur' : ''}`}>{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</a>
       <a href="/hakkimizda" class={`nav-a${isActive('/hakkimizda') ? ' cur' : ''}`}>{lang === 'en' ? 'About' : 'Hakkımızda'}</a>
       <a href="/iletisim" class="nav-a nav-cta">{lang === 'en' ? 'Contact' : 'İletişim'}</a>
@@ -82,7 +83,7 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
         <div class="m-drawer-list">
           <a href="/" class={`m-drawer-item${isActive('/') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Home' : 'Ana Sayfa'}</div></div></a>
           <a href="/kategori/" class={`m-drawer-item${isActive('/kategori') || isActive('/urunler') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</div></div></a>
-          <a href="/belgeler" class={`m-drawer-item${isActive('/belgeler') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Catalog' : 'Katalog'}</div></div></a>
+          <a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="m-drawer-item"><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Catalog' : 'Katalog'}</div></div></a>
           <a href="/sertifikalar" class={`m-drawer-item${isActive('/sertifikalar') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</div></div></a>
           <a href="/hakkimizda" class={`m-drawer-item${isActive('/hakkimizda') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'About' : 'Hakkımızda'}</div></div></a>
           <a href="/iletisim" class={`m-drawer-item${isActive('/iletisim') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Contact' : 'İletişim'}</div></div></a>
@@ -109,7 +110,7 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
       <a href="/hakkimizda">Hakkımızda</a><a href="/sertifikalar">Sertifikalar</a><a href="/iletisim">İletişim</a>
       <a href={LINKEDIN_URL} target="_blank" rel="noopener" class="ftr-linkedin"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.11 20.45H3.56V9h3.55v11.45Z"/></svg> LinkedIn</a>
     </div>
-    <div class="ftr-col"><h4>{lang === 'en' ? 'Documents' : 'Belgeler'}</h4><a href="/belgeler">Katalog</a><a href="/belgeler">Fiyat Listesi</a></div>
+    <div class="ftr-col"><h4>{lang === 'en' ? 'Documents' : 'Belgeler'}</h4><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener">Katalog</a><a href={keyDocs.priceListUrl || '#'} download>Fiyat Listesi</a></div>
   </div><div class="ftr-bot">
     <p>© 2026 Simpa Elektrik Malzemesi San. ve Tic. A.Ş.</p>
     <div class="cert-logos"><span class="cert-badge">ISO</span><span class="cert-badge">CE</span><span class="cert-badge">EAC</span><span class="cert-badge">RoHS</span></div>
@@ -126,7 +127,7 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
       </div>
       <div class="m-ftr-links">
         {categories.map((c) => <a href={`/kategori/${c.slug}`}>{c.name}</a>)}
-        <a href="/hakkimizda">Hakkımızda</a><a href="/sertifikalar">Sertifikalar</a><a href="/belgeler">Katalog</a><a href="/iletisim">İletişim</a>
+        <a href="/hakkimizda">Hakkımızda</a><a href="/sertifikalar">Sertifikalar</a><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener">Katalog</a><a href={keyDocs.priceListUrl || '#'} download>Fiyat Listesi</a><a href="/iletisim">İletişim</a>
       </div>
       <div class="m-ftr-copy">© 2026 Simpa Elektrik Malzemesi San. ve Tic. A.Ş.</div>
     </div>
