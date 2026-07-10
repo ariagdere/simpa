@@ -64,9 +64,20 @@ const products = await getProductOptionsList(env.DB, lang);
       <div><strong style="color:var(--navy)">Telefon:</strong> <a href="tel:+902164996962" style="color:var(--blue)">+90 216 499 69 62</a></div>
       <div><strong style="color:var(--navy)">E-posta:</strong> <a href="mailto:info@simpaelektrik.com.tr" style="color:var(--blue)">info@simpaelektrik.com.tr</a></div>
     </div>
+
+    <div class="map-embed">
+      <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3011.209164010276!2d29.1842789!3d40.9987949!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cacf16416f0e51%3A0x3ba85de761c14109!2sSimpa%20Elektrik%20Malzemesi!5e0!3m2!1sen!2str!4v1783674257811!5m2!1sen!2str" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen title="Simpa Elektrik konum haritası"></iframe>
+    </div>
   </div></div>
 </Layout>
 
+<style>
+  .map-embed { margin-top: 20px; border: 1px solid var(--g200); border-radius: 8px; overflow: hidden; height: 340px; }
+  .map-embed iframe { width: 100%; height: 100%; border: 0; display: block; }
+  @media (max-width: 860px) {
+    .map-embed { height: 240px; }
+  }
+</style>
 <style>
   .cf-lbl { display: block; font-size: 12.5px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
   .cf-input {
