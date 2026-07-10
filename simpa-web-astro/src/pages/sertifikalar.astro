@@ -1,0 +1,35 @@
+---
+export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+import { getAllCertificates } from '../lib/queries.js';
+import { env } from 'cloudflare:workers';
+
+const lang = 'tr';
+const certificates = await getAllCertificates(env.DB);
+---
+<Layout title="Sertifikalar — Simpa Elektrik" lang={lang}>
+  <div class="desktop-only">
+    <div class="bc"><div class="bc-in"><a href="/">Ana Sayfa</a><span>›</span><span class="cur">Sertifikalar</span></div></div>
+  </div>
+  <div class="mobile-only">
+    <div class="m-bc"><a href="/">Ana Sayfa</a><span>›</span><span style="color:var(--g800)">Sertifikalar</span></div>
+  </div>
+
+  <div class="cb-header"><div class="cb-header-in">
+    <div class="cb-header-top"><h1>Sertifikalar &amp; Belgeler</h1></div>
+    <p>Tüm ürünlerimiz uluslararası standartlara uygun test ve sertifikalandırılmıştır. Aşağıdan ilgili belgeyi görüntüleyebilirsiniz.</p>
+  </div></div>
+
+  <div class="sec"><div class="sec-in">
+    <div class="cb-grid">
+      {certificates.map((c) => (
+        <a href={c.file_url_tr || c.file_url_en} target="_blank" rel="noopener" class="cert-card" style="display:block">
+          <div class="cert-card-img">
+            {c.image_url ? <img src={c.image_url} alt={c.name} style="max-width:100%;max-height:100%;object-fit:contain" /> : <div class="iso-placeholder"><div class="iso-icon">{c.tag}</div></div>}
+          </div>
+          <div class="cert-card-info"><div class="cert-card-name">{c.name}</div><div class="cert-card-sub">Sertifika / Belge — Görüntüle</div></div>
+        </a>
+      ))}
+    </div>
+  </div></div>
+</Layout>
