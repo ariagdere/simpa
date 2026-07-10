@@ -1,0 +1,267 @@
+---
+export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+
+const lang = 'tr';
+
+const licenseOptions = ['A1', 'A2', 'A', 'B', 'BE', 'C', 'CE', 'D', 'DE'];
+
+// TODO: Ari — bu liste yer tutucu, gerçek departman adlarıyla güncelle
+const departments = [
+  'Üretim',
+  'Kalite Kontrol',
+  'AR-GE',
+  'Satış ve Pazarlama',
+  'Muhasebe / Finans',
+  'İnsan Kaynakları',
+  'Lojistik / Depo',
+  'İdari İşler',
+  'Bilgi İşlem',
+  'Diğer',
+];
+---
+<Layout title="Kariyer — Simpa Elektrik" lang={lang}>
+  <div class="desktop-only">
+    <div class="bc"><div class="bc-in"><a href="/">Ana Sayfa</a><span>›</span><span class="cur">Kariyer</span></div></div>
+  </div>
+  <div class="mobile-only">
+    <div class="m-bc"><a href="/">Ana Sayfa</a><span>›</span><span style="color:var(--g800)">Kariyer</span></div>
+  </div>
+
+  <div class="sec"><div class="sec-in" style="max-width:760px">
+    <h1 style="font-family:var(--cond);font-size:28px;color:var(--navy);margin-bottom:12px">Kariyer</h1>
+    <p style="font-size:14.5px;color:var(--g600);line-height:1.8;margin-bottom:28px">
+      Simpa Elektrik ekibine katılmak ister misiniz? Aşağıdaki formu doldurarak başvurunuzu iletebilirsiniz.
+    </p>
+
+    <div id="careerSuccess" style="display:none;background:#eafaf0;border:1px solid #a7e3bd;color:#1e7a46;padding:14px 18px;border-radius:8px;margin-bottom:20px;font-size:14px">
+      Başvurunuz alındı, teşekkür ederiz. En kısa sürede sizinle iletişime geçeceğiz.
+    </div>
+    <div id="careerError" style="display:none;background:#fdecec;border:1px solid #f0b3b3;color:#a32020;padding:14px 18px;border-radius:8px;margin-bottom:20px;font-size:14px"></div>
+
+    <form id="careerForm" style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">İsim Soyisim *</label>
+          <input type="text" name="name" required class="cf-input" />
+        </div>
+        <div>
+          <label class="cf-lbl">E-posta *</label>
+          <input type="email" name="email" required class="cf-input" />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">Cinsiyet</label>
+          <select name="gender" id="genderSelect" class="cf-input">
+            <option value="">Seçiniz</option>
+            <option value="Erkek">Erkek</option>
+            <option value="Kadın">Kadın</option>
+          </select>
+        </div>
+        <div>
+          <label class="cf-lbl">Doğum Tarihi</label>
+          <input type="date" name="birthDate" class="cf-input" />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">Telefon</label>
+          <input type="tel" name="phone" class="cf-input" />
+        </div>
+        <div id="militaryWrap" style="display:none">
+          <label class="cf-lbl">Askerlik Durumu</label>
+          <select name="militaryStatus" class="cf-input">
+            <option value="">Seçiniz</option>
+            <option value="Yapıldı">Yapıldı</option>
+            <option value="Tecilli">Tecilli</option>
+            <option value="Muaf">Muaf</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="cf-lbl">Sürücü Ehliyeti Sınıfı</label>
+        <div id="licenseGroup" style="display:flex;flex-wrap:wrap;gap:10px 18px;padding:10px 12px;border:1px solid var(--g200);border-radius:6px">
+          {licenseOptions.map((cls) => (
+            <label style="display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--g800)">
+              <input type="checkbox" class="lic-cb" value={cls} /> {cls}
+            </label>
+          ))}
+          <label style="display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--g800);border-left:1px solid var(--g200);padding-left:16px">
+            <input type="checkbox" id="licNone" value="Yok" /> Yok
+          </label>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">Son Mezun Olduğu Okul</label>
+          <input type="text" name="school" class="cf-input" />
+        </div>
+        <div>
+          <label class="cf-lbl">Başvurulan İş Birimi</label>
+          <select name="department" class="cf-input">
+            <option value="">Seçiniz</option>
+            {departments.map((d) => <option value={d}>{d}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="cf-lbl">Bildiği Diller ve Seviyeleri</label>
+        <div id="langRows" style="display:flex;flex-direction:column;gap:10px"></div>
+        <button type="button" id="addLangBtn" style="align-self:flex-start;margin-top:10px;background:none;border:1px dashed var(--g200);color:var(--blue);border-radius:6px;padding:7px 12px;font-size:13px;cursor:pointer">+ Dil Ekle</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">Son Çalıştığı İş Yeri</label>
+          <input type="text" name="lastWorkplace" class="cf-input" />
+        </div>
+        <div>
+          <label class="cf-lbl">Çalışma Tarihleri</label>
+          <input type="text" name="lastWorkplaceDates" class="cf-input" placeholder="Örn: Ocak 2020 – Mart 2023" />
+        </div>
+      </div>
+
+      <div>
+        <label class="cf-lbl">Referanslar</label>
+        <textarea name="references" rows="3" class="cf-input" style="resize:vertical" placeholder="Ad soyisim, çalıştığı kurum, telefon..."></textarea>
+      </div>
+
+      <div>
+        <label class="cf-lbl">Not</label>
+        <textarea name="note" rows="4" class="cf-input" style="resize:vertical"></textarea>
+      </div>
+
+      <button type="submit" id="careerSubmit" class="btn-p" style="align-self:flex-start;border:none;cursor:pointer">Başvuruyu Gönder</button>
+    </form>
+  </div></div>
+</Layout>
+
+<style>
+  .cf-lbl { display: block; font-size: 12.5px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .cf-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--g200);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: var(--font);
+    color: var(--g800);
+    background: #fff;
+  }
+  .cf-input:focus { outline: none; border-color: var(--blue); }
+  .lang-row { display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; align-items: center; }
+  @media (max-width: 860px) {
+    #careerForm > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    .lang-row { grid-template-columns: 1fr 1fr auto; }
+  }
+</style>
+
+<script>
+  const form = document.getElementById('careerForm');
+  const successBox = document.getElementById('careerSuccess');
+  const errorBox = document.getElementById('careerError');
+  const submitBtn = document.getElementById('careerSubmit');
+  const genderSelect = document.getElementById('genderSelect');
+  const militaryWrap = document.getElementById('militaryWrap');
+  const licenseGroup = document.getElementById('licenseGroup');
+  const licNone = document.getElementById('licNone');
+  const licCbs = licenseGroup.querySelectorAll('.lic-cb');
+  const langRows = document.getElementById('langRows');
+  const addLangBtn = document.getElementById('addLangBtn');
+
+  // Cinsiyet -> askerlik durumu koşullu alan
+  genderSelect?.addEventListener('change', () => {
+    militaryWrap.style.display = genderSelect.value === 'Erkek' ? 'block' : 'none';
+  });
+
+  // Ehliyet: "Yok" işaretlenirse diğerleri kilitlenir
+  licNone?.addEventListener('change', () => {
+    if (licNone.checked) licCbs.forEach((cb) => { cb.checked = false; cb.disabled = true; });
+    else licCbs.forEach((cb) => { cb.disabled = false; });
+  });
+  licCbs.forEach((cb) => cb.addEventListener('change', () => {
+    if (cb.checked) licNone.checked = false;
+  }));
+
+  // Diller: dinamik satır ekleme/çıkarma
+  const levels = ['Başlangıç', 'Orta', 'İyi', 'İleri', 'Anadil'];
+  function addLangRow() {
+    const row = document.createElement('div');
+    row.className = 'lang-row';
+    row.innerHTML = `
+      <input type="text" class="cf-input lang-name" placeholder="Dil (örn: İngilizce)" />
+      <select class="cf-input lang-level">${levels.map((l) => `<option>${l}</option>`).join('')}</select>
+      <button type="button" class="lang-remove" style="background:none;border:none;color:var(--g600);cursor:pointer;font-size:18px;line-height:1">×</button>
+    `;
+    row.querySelector('.lang-remove').addEventListener('click', () => row.remove());
+    langRows.appendChild(row);
+  }
+  addLangBtn?.addEventListener('click', addLangRow);
+  addLangRow();
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    successBox.style.display = 'none';
+    errorBox.style.display = 'none';
+
+    const formData = new FormData(form);
+    const licenseClasses = Array.from(licCbs).filter((cb) => cb.checked).map((cb) => cb.value);
+    if (licNone.checked) licenseClasses.push('Yok');
+
+    const languages = Array.from(langRows.querySelectorAll('.lang-row'))
+      .map((row) => ({
+        lang: row.querySelector('.lang-name').value.trim(),
+        level: row.querySelector('.lang-level').value,
+      }))
+      .filter((l) => l.lang);
+
+    const payload = {
+      name: formData.get('name'),
+      gender: formData.get('gender'),
+      birthDate: formData.get('birthDate'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      militaryStatus: formData.get('militaryStatus'),
+      licenseClasses,
+      school: formData.get('school'),
+      languages,
+      department: formData.get('department'),
+      lastWorkplace: formData.get('lastWorkplace'),
+      lastWorkplaceDates: formData.get('lastWorkplaceDates'),
+      references: formData.get('references'),
+      note: formData.get('note'),
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Gönderiliyor…';
+
+    try {
+      const res = await fetch('/api/kariyer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Bir hata oluştu.');
+      successBox.style.display = 'block';
+      form.reset();
+      langRows.innerHTML = '';
+      addLangRow();
+      licCbs.forEach((cb) => { cb.disabled = false; });
+      militaryWrap.style.display = 'none';
+      successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      errorBox.textContent = err.message || 'Bir hata oluştu, lütfen tekrar deneyin.';
+      errorBox.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Başvuruyu Gönder';
+    }
+  });
+</script>
