@@ -7,8 +7,10 @@ import { env } from 'cloudflare:workers';
 interface Props {
   title: string;
   lang?: 'tr' | 'en';
+  trSwitchOverride?: string | null;
+  enSwitchOverride?: string | null;
 }
-const { title, lang = 'tr' } = Astro.props;
+const { title, lang = 'tr', trSwitchOverride = null, enSwitchOverride = null } = Astro.props;
 const path = Astro.url.pathname;
 
 // TR <-> EN sabit yol segmenti eşleştirmesi (örn. /kategori -> /en/category)
@@ -63,6 +65,10 @@ if (isBankPage) {
   enSwitchPath = toEn(path);
 }
 
+// Sayfa (ürün/kategori detayı gibi) karşı dilde çeviri olmadığını biliyorsa, üzerine yazar
+if (trSwitchOverride !== null) trSwitchPath = trSwitchOverride;
+if (enSwitchOverride !== null) enSwitchPath = enSwitchOverride;
+
 const categories = await getCategoriesWithCounts(env.DB, lang);
 const keyDocs = await getKeyDocuments(env.DB, null, lang);
 
@@ -77,6 +83,14 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
   <meta name="format-detection" content="telephone=no" />
   <link rel="icon" type="image/png" href="https://assets.superpress.com.tr/logosimpa-fav.png" />
   <title>{title}</title>
+  <link rel="canonical" href={`https://simpaelektrik.com.tr${path}`} />
+  {!isBankPage && (
+    <>
+      <link rel="alternate" hreflang="tr" href={`https://simpaelektrik.com.tr${trSwitchPath}`} />
+      <link rel="alternate" hreflang="en" href={`https://simpaelektrik.com.tr${enSwitchPath}`} />
+      <link rel="alternate" hreflang="x-default" href={`https://simpaelektrik.com.tr${trSwitchPath}`} />
+    </>
+  )}
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet" />
 </head>
