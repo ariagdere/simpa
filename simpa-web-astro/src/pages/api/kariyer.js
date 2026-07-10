@@ -30,6 +30,7 @@ export async function POST({ request }) {
       lastWorkplaceDates,
       references,
       note,
+      turnstileToken,
     } = body;
 
     if (!name || !email) {
@@ -42,6 +43,24 @@ export async function POST({ request }) {
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
       return new Response(JSON.stringify({ error: 'Geçerli bir e-posta adresi girin.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    const turnstileRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        secret: env.TURNSTILE_SECRET_KEY,
+        response: turnstileToken,
+        remoteip: request.headers.get('CF-Connecting-IP') || undefined,
+      }),
+    });
+    const turnstileData = await turnstileRes.json();
+    if (!turnstileData.success) {
+      console.error('Turnstile doğrulaması başarısız:', turnstileData['error-codes']);
+      return new Response(JSON.stringify({ error: 'Doğrulama başarısız oldu. Lütfen tekrar deneyin.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
