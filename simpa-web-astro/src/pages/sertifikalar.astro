@@ -21,7 +21,7 @@ const certificates = await getAllCertificates(env.DB);
   </div></div>
 
   <div class="sec"><div class="sec-in">
-    <div class="cb-grid">
+    <div class="cb-grid cert-grid">
       {certificates.map((c) => (
         <a href={c.file_url_tr || c.file_url_en} target="_blank" rel="noopener" class="cert-card" style="display:block">
           <div class="cert-card-img">
