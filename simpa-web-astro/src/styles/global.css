@@ -132,7 +132,7 @@ nav{display:flex;gap:4px;margin-left:auto}
 .ftr-social a:hover{color:#fff}
 .ftr-col a{display:block;color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;margin-bottom:6px}
 .ftr-col a:hover{color:#fff}
-.ftr-wa-btn{display:inline-flex !important;align-items:center;gap:8px;background:#25D366;color:#fff !important;padding:10px 16px;border-radius:6px;font-size:13px;font-weight:600;margin-top:16px;transition:.2s}
+.ftr-wa-btn{display:inline-flex !important;align-items:center;gap:8px;background:#25D366;color:#fff !important;padding:10px 16px;border-radius:6px;font-size:13px;font-weight:600;margin-top:16px;transition:.2s;text-decoration:none}
 .ftr-wa-btn:hover{background:#1ebe5a;color:#fff !important}
 .ftr-col .ftr-linkedin{display:flex;align-items:center;gap:7px;margin-top:10px}
 .ftr-bot{margin-top:32px;padding:14px 24px;border-top:1px solid rgba(255,255,255,.1);display:flex;justify-content:space-between;align-items:center;max-width:1140px;margin-left:auto;margin-right:auto}
@@ -185,6 +185,7 @@ nav{display:flex;gap:4px;margin-left:auto}
 .sec-hdr{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:32px}
 .sec-title{font-family:var(--cond);font-size:30px;font-weight:700;color:var(--navy)}
 .sec-title span{color:var(--blue)}
+.title-link{color:inherit;text-decoration:none;display:block}
 .sec-sub{font-size:13px;color:var(--g400);margin-top:4px}
 .sec-link{font-size:13px;font-weight:600;color:var(--blue);text-decoration:none}
 .cat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
