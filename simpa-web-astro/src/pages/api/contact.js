@@ -41,7 +41,7 @@ export async function POST({ request }) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Simpa Elektrik Web Sitesi <web@mail.simpaelektrik.com.tr>',
+        from: 'Simpa Elektrik Web Sitesi <web@cont.simpaelektrik.com.tr>',
         to: ['info@simpaelektrik.com.tr'],
         reply_to: email,
         subject: `Yeni Talep: ${name}${product ? ' — ' + product : ''}`,
