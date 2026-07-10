@@ -55,6 +55,7 @@ const products = await getProductOptionsList(env.DB, lang);
         <label class="cf-lbl">Mesajınız</label>
         <textarea name="message" rows="5" class="cf-input" style="resize:vertical"></textarea>
       </div>
+      <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA"></div>
       <button type="submit" id="contactSubmit" class="btn-p" style="align-self:flex-start;border:none;cursor:pointer">Gönder</button>
     </form>
 
@@ -84,6 +85,7 @@ const products = await getProductOptionsList(env.DB, lang);
   }
 </style>
 
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>
   const form = document.getElementById('contactForm');
   const successBox = document.getElementById('contactSuccess');
@@ -105,6 +107,7 @@ const products = await getProductOptionsList(env.DB, lang);
       phone: formData.get('phone'),
       product: productLabel,
       message: formData.get('message'),
+      turnstileToken: formData.get('cf-turnstile-response'),
     };
 
     submitBtn.disabled = true;
@@ -120,10 +123,12 @@ const products = await getProductOptionsList(env.DB, lang);
       if (!res.ok) throw new Error(data.error || 'Bir hata oluştu.');
       successBox.style.display = 'block';
       form.reset();
+      if (window.turnstile) window.turnstile.reset();
       successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (err) {
       errorBox.textContent = err.message || 'Bir hata oluştu, lütfen tekrar deneyin.';
       errorBox.style.display = 'block';
+      if (window.turnstile) window.turnstile.reset();
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Gönder';
