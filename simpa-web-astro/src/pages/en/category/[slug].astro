@@ -21,7 +21,11 @@ if (!category) {
 }
 
 const categoryName = category.name_en;
+
+// Bu kategorinin TR karşılığı var mı? Yoksa dil switcher'ı "All Products"a düşsün.
+const trExists = await db.prepare('SELECT 1 FROM categories WHERE slug = ? AND name_tr IS NOT NULL').bind(slug).first();
+const trSwitchOverride = trExists ? `/kategori/${slug}` : '/kategori/';
 ---
-<Layout title={`${categoryName} — Simpa Elektrik`} lang={lang}>
+<Layout title={`${categoryName} — Simpa Elektrik`} lang={lang} trSwitchOverride={trSwitchOverride}>
   <CategoryListing categories={categories} activeSlug={slug} title={categoryName} products={products} lang={lang} />
 </Layout>
