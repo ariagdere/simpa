@@ -1,5 +1,5 @@
 ---
-// src/pages/en/urunler/[...code].astro
+// src/pages/en/products/[...code].astro
 export const prerender = false;
 
 import Layout from '../../../layouts/Layout.astro';
@@ -94,8 +94,8 @@ const quickItems = [
 <div class="desktop-only">
   <div class="bc"><div class="bc-in">
     <a href="/en">Home</a><span>›</span>
-    <a href={`/en/kategori/${product.category_slug}`}>Products</a><span>›</span>
-    <a href={`/en/kategori/${product.category_slug}`}>{categoryName}</a><span>›</span>
+    <a href={`/en/category/${product.category_slug}`}>Products</a><span>›</span>
+    <a href={`/en/category/${product.category_slug}`}>{categoryName}</a><span>›</span>
     <span class="cur">{product.prod_code}</span>
   </div></div>
 
@@ -239,7 +239,7 @@ const quickItems = [
       <div class="rel-title">Compatible Products</div>
       <div class="cb-carousel">
         {compatible.map((c) => (
-          <a href={`/en/urunler/${c.prod_code}`} class="cb-card">
+          <a href={`/en/products/${c.prod_code}`} class="cb-card">
             <div class="cb-card-img">{c.image && <img src={c.image} alt={c.title} />}</div>
             <div class="cb-card-body">
               <div class="cb-card-code">{c.prod_code}</div>
@@ -263,7 +263,7 @@ const quickItems = [
       <div class="rel-title">Other Products in This Category</div>
       <div class="cb-carousel">
         {related.map((r) => (
-          <a href={`/en/urunler/${r.prod_code}`} class="cb-card">
+          <a href={`/en/products/${r.prod_code}`} class="cb-card">
             <div class="cb-card-img">{r.image && <img src={r.image} alt={r.title} />}</div>
             <div class="cb-card-body">
               <div class="cb-card-code">{r.prod_code}</div>
@@ -287,8 +287,8 @@ const quickItems = [
 <div class="mobile-only">
   <div class="m-bc">
     <a href="/en">Home</a><span>›</span>
-    <a href={`/en/kategori/${product.category_slug}`}>Products</a><span>›</span>
-    <a href={`/en/kategori/${product.category_slug}`}>{categoryName}</a><span>›</span>
+    <a href={`/en/category/${product.category_slug}`}>Products</a><span>›</span>
+    <a href={`/en/category/${product.category_slug}`}>{categoryName}</a><span>›</span>
     <span style="color:var(--g800)">{product.prod_code}</span>
   </div>
 
@@ -410,7 +410,7 @@ const quickItems = [
       <div class="m-cb-carousel-wrap">
       <div class="m-cb-carousel">
         {compatible.map((c) => (
-          <a href={`/en/urunler/${c.prod_code}`} class="m-cb-card">
+          <a href={`/en/products/${c.prod_code}`} class="m-cb-card">
             <div class="m-cb-img">{c.image && <img src={c.image} alt={c.title} />}</div>
             <div class="m-cb-body2">
               <div class="m-cb-code">{c.prod_code}</div>
@@ -437,7 +437,7 @@ const quickItems = [
       <div class="m-cb-carousel-wrap">
       <div class="m-cb-carousel">
         {related.map((r) => (
-          <a href={`/en/urunler/${r.prod_code}`} class="m-cb-card">
+          <a href={`/en/products/${r.prod_code}`} class="m-cb-card">
             <div class="m-cb-img">{r.image && <img src={r.image} alt={r.title} />}</div>
             <div class="m-cb-body2">
               <div class="m-cb-code">{r.prod_code}</div>
