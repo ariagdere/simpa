@@ -23,15 +23,17 @@ const SEGMENT_MAP = {
 };
 const SEGMENT_MAP_REVERSE = Object.fromEntries(Object.entries(SEGMENT_MAP).map(([tr, en]) => [en, tr]));
 
-// Locale-prefix helper: TR path'i alır, lang==='en' ise EN karşılığına çevirir
-const lp = (p) => {
-  if (lang !== 'en') return p;
+// Koşulsuz TR -> EN çevirici (mevcut sayfanın dilinden bağımsız, her zaman çevirir)
+const toEn = (p) => {
   if (p === '/') return '/en';
   const m = p.match(/^\/([a-z-]+)(\/.*)?$/);
   if (!m) return `/en${p}`;
   const [, seg, restRaw] = m;
   return `/en/${SEGMENT_MAP[seg] || seg}${restRaw || ''}`;
 };
+
+// Locale-prefix helper: içerik linkleri için — sayfa TR ise dokunmaz, EN ise çevirir
+const lp = (p) => (lang === 'en' ? toEn(p) : p);
 
 // isActive her zaman TR prefix'i ile çağrılır, lp() ile o dile çevrilip karşılaştırılır
 const isActive = (prefix) => {
@@ -58,7 +60,7 @@ if (isBankPage) {
   enSwitchPath = path;
 } else {
   trSwitchPath = path;
-  enSwitchPath = lp(path);
+  enSwitchPath = toEn(path);
 }
 
 const categories = await getCategoriesWithCounts(env.DB, lang);
