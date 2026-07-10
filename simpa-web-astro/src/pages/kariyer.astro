@@ -137,6 +137,7 @@ const departments = [
         <textarea name="note" rows="4" class="cf-input" style="resize:vertical"></textarea>
       </div>
 
+      <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA"></div>
       <button type="submit" id="careerSubmit" class="btn-p" style="align-self:flex-start;border:none;cursor:pointer">Başvuruyu Gönder</button>
     </form>
   </div></div>
@@ -162,6 +163,7 @@ const departments = [
   }
 </style>
 
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <script>
   const form = document.getElementById('careerForm');
   const successBox = document.getElementById('careerSuccess');
@@ -236,6 +238,7 @@ const departments = [
       lastWorkplaceDates: formData.get('lastWorkplaceDates'),
       references: formData.get('references'),
       note: formData.get('note'),
+      turnstileToken: formData.get('cf-turnstile-response'),
     };
 
     submitBtn.disabled = true;
@@ -255,10 +258,12 @@ const departments = [
       addLangRow();
       licCbs.forEach((cb) => { cb.disabled = false; });
       militaryWrap.style.display = 'none';
+      if (window.turnstile) window.turnstile.reset();
       successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (err) {
       errorBox.textContent = err.message || 'Bir hata oluştu, lütfen tekrar deneyin.';
       errorBox.style.display = 'block';
+      if (window.turnstile) window.turnstile.reset();
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = 'Başvuruyu Gönder';
