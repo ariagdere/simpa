@@ -510,6 +510,9 @@ const quickItems = [
   .cf-lbl{display:block;font-size:12.5px;font-weight:600;color:var(--navy);margin-bottom:6px}
   .cf-input{width:100%;padding:10px 12px;border:1px solid var(--g200);border-radius:6px;font-size:14px;font-family:var(--font);color:var(--g800);background:#fff}
   .cf-input:focus{outline:none;border-color:var(--blue)}
+  @media (max-width:860px){
+    .cf-input{font-size:16px}
+  }
 </style>
 
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -648,6 +651,14 @@ const quickItems = [
   const quoteError = document.getElementById('quoteError');
   const quoteSubmit = document.getElementById('quoteSubmit');
 
+  function resetMobileZoom() {
+    const viewport = document.querySelector('meta[name="viewport"]');
+    if (!viewport) return;
+    const original = viewport.getAttribute('content');
+    viewport.setAttribute('content', original + ', maximum-scale=1.0');
+    setTimeout(() => viewport.setAttribute('content', original), 350);
+  }
+
   function openQuoteModal() {
     quoteModalProduct.textContent = productTitle;
     quoteSuccess.style.display = 'none';
@@ -658,6 +669,7 @@ const quickItems = [
   function closeQuoteModal() {
     quoteModal.classList.remove('open');
     document.body.style.overflow = '';
+    resetMobileZoom();
   }
 
   document.getElementById('btnAskDesktop')?.addEventListener('click', openQuoteModal);
