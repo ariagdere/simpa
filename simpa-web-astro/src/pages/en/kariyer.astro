@@ -1,0 +1,305 @@
+---
+export const prerender = false;
+import Layout from '../../layouts/Layout.astro';
+
+const lang = 'en';
+
+const licenseOptions = ['A1', 'A2', 'A', 'B', 'BE', 'C', 'CE', 'D', 'DE'];
+
+// TODO: Ari — placeholder list, update with real department names (kept in sync with the TR page)
+const departments = [
+  { value: 'Üretim', label: 'Production' },
+  { value: 'Kalite Kontrol', label: 'Quality Control' },
+  { value: 'AR-GE', label: 'R&D' },
+  { value: 'Satış ve Pazarlama', label: 'Sales & Marketing' },
+  { value: 'Muhasebe / Finans', label: 'Accounting / Finance' },
+  { value: 'İnsan Kaynakları', label: 'Human Resources' },
+  { value: 'Lojistik / Depo', label: 'Logistics / Warehouse' },
+  { value: 'İdari İşler', label: 'Administrative Affairs' },
+  { value: 'Bilgi İşlem', label: 'IT' },
+  { value: 'Diğer', label: 'Other' },
+];
+---
+<Layout title="Careers — Simpa Elektrik" lang={lang}>
+  <div class="desktop-only">
+    <div class="bc"><div class="bc-in"><a href="/en">Home</a><span>›</span><span class="cur">Careers</span></div></div>
+  </div>
+  <div class="mobile-only">
+    <div class="m-bc"><a href="/en">Home</a><span>›</span><span style="color:var(--g800)">Careers</span></div>
+  </div>
+
+  <div class="sec"><div class="sec-in" style="max-width:760px">
+    <h1 style="font-family:var(--cond);font-size:28px;color:var(--navy);margin-bottom:12px">Careers</h1>
+    <p style="font-size:14.5px;color:var(--g600);line-height:1.8;margin-bottom:28px">
+      Interested in joining the Simpa Elektrik team? Fill in the form below to submit your application.
+    </p>
+
+    <div id="careerSuccess" style="display:none;background:#eafaf0;border:1px solid #a7e3bd;color:#1e7a46;padding:14px 18px;border-radius:8px;margin-bottom:20px;font-size:14px">
+      Your application has been received, thank you. We'll be in touch as soon as possible.
+    </div>
+    <div id="careerError" style="display:none;background:#fdecec;border:1px solid #f0b3b3;color:#a32020;padding:14px 18px;border-radius:8px;margin-bottom:20px;font-size:14px"></div>
+
+    <form id="careerForm" style="display:flex;flex-direction:column;gap:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">Full Name *</label>
+          <input type="text" name="name" required class="cf-input" />
+        </div>
+        <div>
+          <label class="cf-lbl">Email *</label>
+          <input type="email" name="email" required class="cf-input" />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">Gender</label>
+          <select name="gender" id="genderSelect" class="cf-input">
+            <option value="">Select</option>
+            <option value="Erkek">Male</option>
+            <option value="Kadın">Female</option>
+          </select>
+        </div>
+        <div>
+          <label class="cf-lbl">Date of Birth</label>
+          <input type="date" name="birthDate" class="cf-input" />
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">Phone</label>
+          <input type="tel" name="phone" class="cf-input" />
+        </div>
+        <div id="militaryWrap" style="display:none">
+          <label class="cf-lbl">Military Service Status</label>
+          <select name="militaryStatus" class="cf-input">
+            <option value="">Select</option>
+            <option value="Yapıldı">Completed</option>
+            <option value="Tecilli">Deferred</option>
+            <option value="Muaf">Exempt</option>
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="cf-lbl">Driver's License Class</label>
+        <div id="licenseGroup" style="display:flex;flex-wrap:wrap;gap:10px 18px;padding:10px 12px;border:1px solid var(--g200);border-radius:6px">
+          {licenseOptions.map((cls) => (
+            <label style="display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--g800)">
+              <input type="checkbox" class="lic-cb" value={cls} /> {cls}
+            </label>
+          ))}
+          <label style="display:flex;align-items:center;gap:6px;font-size:13.5px;color:var(--g800);border-left:1px solid var(--g200);padding-left:16px">
+            <input type="checkbox" id="licNone" value="Yok" /> None
+          </label>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">Last School Attended</label>
+          <input type="text" name="school" class="cf-input" />
+        </div>
+        <div>
+          <label class="cf-lbl">Department Applied For</label>
+          <select name="department" class="cf-input">
+            <option value="">Select</option>
+            {departments.map((d) => <option value={d.value}>{d.label}</option>)}
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <label class="cf-lbl">Languages & Proficiency</label>
+        <div id="langRows" style="display:flex;flex-direction:column;gap:10px"></div>
+        <button type="button" id="addLangBtn" style="align-self:flex-start;margin-top:10px;background:none;border:1px dashed var(--g200);color:var(--blue);border-radius:6px;padding:7px 12px;font-size:13px;cursor:pointer">+ Add Language</button>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+        <div>
+          <label class="cf-lbl">Last Employer</label>
+          <input type="text" name="lastWorkplace" class="cf-input" />
+        </div>
+        <div>
+          <label class="cf-lbl">Employment Dates</label>
+          <input type="text" name="lastWorkplaceDates" class="cf-input" placeholder="E.g.: Jan 2020 – Mar 2023" />
+        </div>
+      </div>
+
+      <div>
+        <label class="cf-lbl">References</label>
+        <textarea name="references" rows="3" class="cf-input" style="resize:vertical" placeholder="Name, organization, phone..."></textarea>
+      </div>
+
+      <div>
+        <label class="cf-lbl">Note</label>
+        <textarea name="note" rows="4" class="cf-input" style="resize:vertical"></textarea>
+      </div>
+
+      <div class="cf-turnstile" data-sitekey="0x4AAAAAADzH9tbdF9k28nV8"></div>
+      <button type="submit" id="careerSubmit" class="btn-p" style="align-self:flex-start;border:none;cursor:pointer">Submit Application</button>
+    </form>
+  </div></div>
+</Layout>
+
+<style>
+  .cf-lbl { display: block; font-size: 12.5px; font-weight: 600; color: var(--navy); margin-bottom: 6px; }
+  .cf-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--g200);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: var(--font);
+    color: var(--g800);
+    background: #fff;
+  }
+  .cf-input:focus { outline: none; border-color: var(--blue); }
+  .lang-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 8px;
+    align-items: center;
+    background: var(--g50);
+    border: 1px solid var(--g200);
+    border-radius: 8px;
+    padding: 8px;
+  }
+  .lang-row .cf-input { background: #fff; }
+  .lang-remove {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid var(--g200);
+    border-radius: 50%;
+    color: var(--g600);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .lang-remove:hover { background: #fdecec; border-color: #f0b3b3; color: #a32020; }
+  @media (max-width: 860px) {
+    #careerForm > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
+    .lang-row { grid-template-columns: 1fr 1fr auto; }
+    .cf-input { font-size: 16px; }
+  }
+</style>
+
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script>
+  const form = document.getElementById('careerForm');
+  const successBox = document.getElementById('careerSuccess');
+  const errorBox = document.getElementById('careerError');
+  const submitBtn = document.getElementById('careerSubmit');
+  const genderSelect = document.getElementById('genderSelect');
+  const militaryWrap = document.getElementById('militaryWrap');
+  const licenseGroup = document.getElementById('licenseGroup');
+  const licNone = document.getElementById('licNone');
+  const licCbs = licenseGroup.querySelectorAll('.lic-cb');
+  const langRows = document.getElementById('langRows');
+  const addLangBtn = document.getElementById('addLangBtn');
+
+  // Gender -> conditional military status field (value stays 'Erkek' so the backend check matches the TR form)
+  genderSelect?.addEventListener('change', () => {
+    militaryWrap.style.display = genderSelect.value === 'Erkek' ? 'block' : 'none';
+  });
+
+  // License: checking "None" locks the rest
+  licNone?.addEventListener('change', () => {
+    if (licNone.checked) licCbs.forEach((cb) => { cb.checked = false; cb.disabled = true; });
+    else licCbs.forEach((cb) => { cb.disabled = false; });
+  });
+  licCbs.forEach((cb) => cb.addEventListener('change', () => {
+    if (cb.checked) licNone.checked = false;
+  }));
+
+  // Languages: dynamic add/remove rows. Values stay Turkish so HR always sees consistent terms.
+  const levels = [
+    { value: 'Başlangıç', label: 'Beginner' },
+    { value: 'Orta', label: 'Intermediate' },
+    { value: 'İyi', label: 'Good' },
+    { value: 'İleri', label: 'Advanced' },
+    { value: 'Anadil', label: 'Native' },
+  ];
+  function addLangRow() {
+    const row = document.createElement('div');
+    row.className = 'lang-row';
+    row.innerHTML = `
+      <input type="text" class="cf-input lang-name" placeholder="Language (e.g. English)" />
+      <select class="cf-input lang-level">${levels.map((l) => `<option value="${l.value}">${l.label}</option>`).join('')}</select>
+      <button type="button" class="lang-remove">×</button>
+    `;
+    row.querySelector('.lang-remove').addEventListener('click', () => row.remove());
+    langRows.appendChild(row);
+  }
+  addLangBtn?.addEventListener('click', addLangRow);
+  addLangRow();
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    successBox.style.display = 'none';
+    errorBox.style.display = 'none';
+
+    const formData = new FormData(form);
+    const licenseClasses = Array.from(licCbs).filter((cb) => cb.checked).map((cb) => cb.value);
+    if (licNone.checked) licenseClasses.push('Yok');
+
+    const languages = Array.from(langRows.querySelectorAll('.lang-row'))
+      .map((row) => ({
+        lang: row.querySelector('.lang-name').value.trim(),
+        level: row.querySelector('.lang-level').value,
+      }))
+      .filter((l) => l.lang);
+
+    const payload = {
+      name: formData.get('name'),
+      gender: formData.get('gender'),
+      birthDate: formData.get('birthDate'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      militaryStatus: formData.get('militaryStatus'),
+      licenseClasses,
+      school: formData.get('school'),
+      languages,
+      department: formData.get('department'),
+      lastWorkplace: formData.get('lastWorkplace'),
+      lastWorkplaceDates: formData.get('lastWorkplaceDates'),
+      references: formData.get('references'),
+      note: formData.get('note'),
+      turnstileToken: formData.get('cf-turnstile-response'),
+      lang: 'en',
+    };
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+
+    try {
+      const res = await fetch('/api/kariyer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Something went wrong.');
+      successBox.style.display = 'block';
+      form.reset();
+      langRows.innerHTML = '';
+      addLangRow();
+      licCbs.forEach((cb) => { cb.disabled = false; });
+      militaryWrap.style.display = 'none';
+      if (window.turnstile) window.turnstile.reset();
+      successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } catch (err) {
+      errorBox.textContent = err.message || 'Something went wrong, please try again.';
+      errorBox.style.display = 'block';
+      if (window.turnstile) window.turnstile.reset();
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit Application';
+    }
+  });
+</script>
