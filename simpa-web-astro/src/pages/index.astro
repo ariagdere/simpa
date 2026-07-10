@@ -72,7 +72,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
   <div class="about"><div class="about-in">
     <div>
       <div class="about-lbl">Kurumsal</div>
-      <div class="about-title">1977'den Bugüne Kesintisiz Üretim</div>
+      <a href="/hakkimizda" class="about-title title-link">1977'den Bugüne Kesintisiz Üretim</a>
       <div class="about-text">Simpa Elektrik, 1977'de kurulan köklü bir Türk üreticisidir. Modern tesislerimizde elektrik bağlantı malzemeleri üretiyoruz.</div>
     </div>
     <div class="tl">
@@ -86,7 +86,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
   {certificates.length > 0 && (
     <div class="certs"><div class="sec-in">
       <div class="sec-hdr">
-        <div><div class="sec-title">Sertifikalar &amp; <span>Belgeler</span></div><div class="sec-sub">Tüm ürünlerimiz uluslararası standartlara uygun test ve sertifikalandırılmıştır</div></div>
+        <div><a href="/sertifikalar" class="sec-title title-link">Sertifikalar &amp; <span>Belgeler</span></a><div class="sec-sub">Tüm ürünlerimiz uluslararası standartlara uygun test ve sertifikalandırılmıştır</div></div>
         <a href="/sertifikalar" class="sec-link">Tüm Belgeler →</a>
       </div>
       <div class="cert-grid">
@@ -155,7 +155,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
   <div class="m-about">
     <div class="m-about-lbl">Kurumsal</div>
-    <h2>1977'den Bugüne</h2>
+    <h2><a href="/hakkimizda" class="title-link">1977'den Bugüne</a></h2>
     <p>Simpa Elektrik, 1977'de kurulan köklü bir Türk üreticisidir. Modern tesislerimizde üretilen tüm ürünler uluslararası standartlara uygun test ve sertifikalandırılmaktadır.</p>
     <div class="tl">
       <div class="tl-item"><div class="tl-dot">77</div><div><div class="tl-year">1977</div><div class="tl-txt">Simpa Kollektif Şirketi olarak kuruldu</div></div></div>
@@ -167,7 +167,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
   {certificates.length > 0 && (
     <div class="m-certs">
-      <div class="m-certs-title">Sertifikalar &amp; Belgeler</div>
+      <a href="/sertifikalar" class="m-certs-title title-link">Sertifikalar &amp; Belgeler</a>
       <div class="m-cert-scroll">
         {certificates.map((c) => (
           <a href={c.file_url_tr || c.file_url_en} target="_blank" rel="noopener" class="m-cert-card">
