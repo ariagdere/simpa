@@ -23,7 +23,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
       <h1>Reliable <em>Electrical Connection</em> Solutions</h1>
       <p>Years of manufacturing experience in compression cable lugs, busbars and connection equipment. ISO 9001, CE and EAC certified products.</p>
       <div class="hero-btns">
-        <a href="/en/kategori/" class="btn-p">Browse Products →</a>
+        <a href="/en/category/" class="btn-p">Browse Products →</a>
         <a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="btn-s"><svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M4 4a2 2 0 0 1 2-2h4.586A2 2 0 0 1 12 2.586L15.414 6A2 2 0 0 1 16 7.414V16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4Zm2 6a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H6Zm0 4a1 1 0 1 0 0 2h5a1 1 0 1 0 0-2H6Z" clip-rule="evenodd" /></svg> Download Catalog</a>
       </div>
     </div>
@@ -39,7 +39,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
   <div class="sec"><div class="sec-in">
     <div class="hub-grid">
-      <a href="/en/kategori/" class="hub-card">
+      <a href="/en/category/" class="hub-card">
         <div class="hub-img"><img src="https://assets.superpress.com.tr/urunler.png" alt="Our Products" /></div>
         <div class="hub-body">
           <div class="hub-title">Our Products</div>
@@ -61,7 +61,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
   <div class="about"><div class="about-in">
     <div>
       <div class="about-lbl">Corporate</div>
-      <a href="/en/hakkimizda" class="about-title title-link">Uninterrupted Production Since 1977</a>
+      <a href="/en/about" class="about-title title-link">Uninterrupted Production Since 1977</a>
       <div class="about-text">Simpa Elektrik is a well-established Turkish manufacturer founded in 1977. We manufacture electrical connection equipment at our modern facilities.</div>
     </div>
     <div class="tl">
@@ -75,8 +75,8 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
   {certificates.length > 0 && (
     <div class="certs"><div class="sec-in">
       <div class="sec-hdr">
-        <div><a href="/en/sertifikalar" class="sec-title title-link">Certificates &amp; <span>Documents</span></a><div class="sec-sub">All of our products are tested and certified to international standards</div></div>
-        <a href="/en/sertifikalar" class="sec-link">All Documents →</a>
+        <div><a href="/en/certificates" class="sec-title title-link">Certificates &amp; <span>Documents</span></a><div class="sec-sub">All of our products are tested and certified to international standards</div></div>
+        <a href="/en/certificates" class="sec-link">All Documents →</a>
       </div>
       <div class="cert-grid">
         {certificates.map((c) => (
@@ -100,7 +100,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
       <div class="m-badge">Since 1977</div>
       <h1>Reliable <em>Electrical Connection</em> Solutions</h1>
       <p>ISO 9001, CE and EAC certified cable lugs, busbars and connection equipment.</p>
-      <div class="m-hero-btns"><a href="/en/kategori/" class="m-btn-p">Browse Products</a><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="m-btn-s">Catalog</a></div>
+      <div class="m-hero-btns"><a href="/en/category/" class="m-btn-p">Browse Products</a><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="m-btn-s">Catalog</a></div>
     </div>
   </div>
 
@@ -113,7 +113,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
   <div class="m-sec">
     <div class="m-hub-grid">
-      <a href="/en/kategori/" class="m-hub-card">
+      <a href="/en/category/" class="m-hub-card">
         <div class="m-hub-img"><img src="https://assets.superpress.com.tr/urunler.png" alt="Our Products" /></div>
         <div class="m-hub-body">
           <div class="m-hub-title">Our Products</div>
@@ -134,7 +134,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
   <div class="m-about">
     <div class="m-about-lbl">Corporate</div>
-    <h2><a href="/en/hakkimizda" class="title-link">Since 1977</a></h2>
+    <h2><a href="/en/about" class="title-link">Since 1977</a></h2>
     <p>Simpa Elektrik is a well-established Turkish manufacturer founded in 1977. All products manufactured at our modern facilities are tested and certified to international standards.</p>
     <div class="tl">
       <div class="tl-item"><div class="tl-dot">77</div><div><div class="tl-year">1977</div><div class="tl-txt">Founded as Simpa Kollektif Şirketi</div></div></div>
@@ -146,7 +146,7 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
   {certificates.length > 0 && (
     <div class="m-certs">
-      <a href="/en/sertifikalar" class="m-certs-title title-link">Certificates &amp; Documents</a>
+      <a href="/en/certificates" class="m-certs-title title-link">Certificates &amp; Documents</a>
       <div class="m-cert-scroll">
         {certificates.map((c) => (
           <a href={c.file_url_en || c.file_url_tr} target="_blank" rel="noopener" class="m-cert-card">
