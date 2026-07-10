@@ -3,6 +3,37 @@ export const prerender = false;
 import Layout from '../layouts/Layout.astro';
 
 const lang = 'tr';
+
+const banks = [
+  {
+    name: 'Yapı ve Kredi Bankası',
+    subeKodu: '616',
+    sube: 'Bankalar Caddesi',
+    hesapNo: '69425931',
+    iban: 'TR58 0006 7010 0000 0069 4259 31',
+  },
+  {
+    name: 'Türkiye İş Bankası',
+    subeKodu: '1388',
+    sube: 'Galata',
+    hesapNo: '2775',
+    iban: 'TR08 0006 4000 0011 3880 0027 75',
+  },
+  {
+    name: 'Akbank',
+    subeKodu: '156',
+    sube: 'Bankalar Caddesi',
+    hesapNo: '2482-8',
+    iban: 'TR94 0004 6001 5688 8000 0024 82',
+  },
+  {
+    name: 'Türkiye Garanti Bankası',
+    subeKodu: '1675',
+    sube: 'İstanbul Ticari',
+    hesapNo: '6299619',
+    iban: 'TR30 0006 2001 6750 0006 2996 19',
+  },
+];
 ---
 <Layout title="Banka Bilgilerimiz — Simpa Elektrik" lang={lang}>
   <div class="desktop-only">
@@ -12,10 +43,70 @@ const lang = 'tr';
     <div class="m-bc"><a href="/">Ana Sayfa</a><span>›</span><span style="color:var(--g800)">Banka Bilgilerimiz</span></div>
   </div>
 
-  <div class="sec"><div class="sec-in" style="max-width:760px">
-    <h1 style="font-family:var(--cond);font-size:28px;color:var(--navy);margin-bottom:20px">Banka Bilgilerimiz</h1>
-    <div style="background:#FFF8E6;border:1px solid #E0B341;border-radius:8px;padding:16px 18px;font-size:13.5px;color:#8a6d1f">
-      Banka hesap bilgileri henüz eklenmedi — IBAN ve hesap detayları iletildiğinde bu sayfa güncellenecek.
+  <div class="sec"><div class="sec-in" style="max-width:860px">
+    <h1 style="font-family:var(--cond);font-size:28px;color:var(--navy);margin-bottom:6px">Banka Bilgilerimiz</h1>
+    <div class="bank-company">Simpa Elektrik Malzemesi Sanayi ve Ticaret A.Ş.</div>
+
+    <div class="bank-grid">
+      {banks.map((b) => (
+        <div class="bank-card">
+          <div class="bank-name">{b.name}</div>
+          <div class="bank-row"><span>Şube Kodu</span><strong>{b.subeKodu}</strong></div>
+          <div class="bank-row"><span>Şube</span><strong>{b.sube}</strong></div>
+          <div class="bank-row"><span>Hesap No</span><strong>{b.hesapNo}</strong></div>
+          <div class="bank-iban">
+            <span>IBAN</span>
+            <div class="bank-iban-val">
+              <code>{b.iban}</code>
+              <button type="button" class="bank-copy" data-iban={b.iban.replace(/\s/g, '')}>Kopyala</button>
+            </div>
+          </div>
+        </div>
+      ))}
     </div>
+
+    <div class="bank-note">TÜM BANKA KREDİ KARTLARI İLE ALIŞVERİŞ İMKANI</div>
   </div></div>
 </Layout>
+
+<style>
+  .bank-company { font-size: 14px; color: var(--g600); margin-bottom: 24px; }
+  .bank-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 24px; }
+  .bank-card { border: 1px solid var(--g200); border-radius: 10px; padding: 20px; background: #fff; }
+  .bank-name { font-family: var(--cond); font-size: 18px; font-weight: 700; color: var(--navy); margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--g100); }
+  .bank-row { display: flex; justify-content: space-between; align-items: center; font-size: 13.5px; margin-bottom: 8px; }
+  .bank-row span { color: var(--g600); }
+  .bank-row strong { color: var(--g800); font-weight: 600; }
+  .bank-iban { margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--g100); }
+  .bank-iban > span { display: block; font-size: 12px; color: var(--g600); margin-bottom: 6px; }
+  .bank-iban-val { display: flex; align-items: center; gap: 8px; }
+  .bank-iban-val code { flex: 1; font-family: monospace; font-size: 12.5px; color: var(--navy); background: var(--g50); padding: 8px 10px; border-radius: 5px; letter-spacing: .3px; word-break: break-all; }
+  .bank-copy { flex-shrink: 0; background: var(--blue); color: #fff; border: none; border-radius: 5px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; font-family: var(--font); transition: .2s; }
+  .bank-copy:hover { background: var(--blue-l); }
+  .bank-copy.copied { background: var(--green); }
+  .bank-note { background: #FFF9EC; border: 1.5px solid var(--accent); border-radius: 8px; padding: 14px 18px; font-size: 13.5px; color: var(--navy); font-weight: 700; text-align: center; letter-spacing: .02em; }
+  @media (max-width: 860px) {
+    .bank-grid { grid-template-columns: 1fr; }
+    .bank-iban-val { flex-direction: column; align-items: stretch; }
+  }
+</style>
+
+<script>
+  document.querySelectorAll('.bank-copy').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const iban = btn.getAttribute('data-iban') || '';
+      try {
+        await navigator.clipboard.writeText(iban);
+        const original = btn.textContent;
+        btn.textContent = 'Kopyalandı ✓';
+        btn.classList.add('copied');
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1800);
+      } catch (err) {
+        console.error('Kopyalama başarısız:', err);
+      }
+    });
+  });
+</script>
