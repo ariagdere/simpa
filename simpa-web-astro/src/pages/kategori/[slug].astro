@@ -21,7 +21,11 @@ if (!category) {
 }
 
 const categoryName = lang === 'en' ? category.name_en : category.name_tr;
+
+// Bu kategorinin EN karşılığı var mı? Yoksa dil switcher'ı "Tüm Ürünler"e düşsün.
+const enExists = await db.prepare('SELECT 1 FROM categories WHERE slug = ? AND name_en IS NOT NULL').bind(slug).first();
+const enSwitchOverride = enExists ? `/en/category/${slug}` : '/en/category/';
 ---
-<Layout title={`${categoryName} — Simpa Elektrik`} lang={lang}>
+<Layout title={`${categoryName} — Simpa Elektrik`} lang={lang} enSwitchOverride={enSwitchOverride}>
   <CategoryListing categories={categories} activeSlug={slug} title={categoryName} products={products} lang={lang} />
 </Layout>
