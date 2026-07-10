@@ -114,7 +114,7 @@ nav{display:flex;gap:4px;margin-left:auto}
 .m-topbar-left{display:flex;align-items:center;gap:12px}
 .m-topbar-wa{display:flex;align-items:center;gap:4px;color:rgba(255,255,255,.8);font-size:12px;text-decoration:none}
 .m-topbar .ml{display:flex;gap:6px}
-.m-topbar .ml a{color:rgba(255,255,255,.6);font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px}
+.m-topbar .ml a{color:rgba(255,255,255,.6);font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;text-decoration:none}
 .m-topbar .ml a.cur{background:var(--accent);color:var(--navy)}
 .m-hdr{background:#fff;border-bottom:1px solid var(--g200);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
 .m-hdr img{height:30px;width:auto}
@@ -536,6 +536,7 @@ nav{display:flex;gap:4px;margin-left:auto}
    HUB CARDS (v1 elevated 3-box)
 ═══════════════════════════ */
 .hub-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.hub-grid.hub-grid-2{grid-template-columns:repeat(2,1fr)}
 .hub-card{background:#fff;border:1px solid var(--g200);border-radius:12px;overflow:hidden;text-decoration:none;transition:.25s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;position:relative}
 .hub-card:hover{transform:translateY(-5px);box-shadow:0 20px 40px rgba(26,46,74,.16);border-color:transparent}
 .hub-img{height:200px;background:var(--g50);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:20px}
