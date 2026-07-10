@@ -56,14 +56,16 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
           <span class="hub-cta">PDF Görüntüle <span class="hub-arr">→</span></span>
         </div>
       </a>
-      <a href={keyDocs.priceListUrl || '#'} download class="hub-card accent-navy">
-        <div class="hub-img"><img src="https://assets.superpress.com.tr/simpafiyatkare.png" alt="Fiyat Listesi" /></div>
-        <div class="hub-body">
-          <div class="hub-title">Fiyat Listesi</div>
-          <div class="hub-sub">Güncel fiyat listesi, Excel formatında hazır.</div>
-          <span class="hub-cta">Excel İndir <span class="hub-arr">↓</span></span>
-        </div>
-      </a>
+      {lang === 'tr' && (
+        <a href={keyDocs.priceListUrl || '#'} download class="hub-card accent-navy">
+          <div class="hub-img"><img src="https://assets.superpress.com.tr/simpafiyatkare.png" alt="Fiyat Listesi" /></div>
+          <div class="hub-body">
+            <div class="hub-title">Fiyat Listesi</div>
+            <div class="hub-sub">Güncel fiyat listesi, Excel formatında hazır.</div>
+            <span class="hub-cta">Excel İndir <span class="hub-arr">↓</span></span>
+          </div>
+        </a>
+      )}
     </div>
   </div></div>
 
@@ -138,14 +140,16 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
           <span class="m-hub-cta">PDF Görüntüle <span class="m-hub-arr">→</span></span>
         </div>
       </a>
-      <a href={keyDocs.priceListUrl || '#'} download class="m-hub-card accent-navy">
-        <div class="m-hub-img"><img src="https://assets.superpress.com.tr/simpafiyatkare.png" alt="Fiyat Listesi" /></div>
-        <div class="m-hub-body">
-          <div class="m-hub-title">Fiyat Listesi</div>
-          <div class="m-hub-sub">Excel formatında hazır</div>
-          <span class="m-hub-cta">Excel İndir <span class="m-hub-arr">↓</span></span>
-        </div>
-      </a>
+      {lang === 'tr' && (
+        <a href={keyDocs.priceListUrl || '#'} download class="m-hub-card accent-navy">
+          <div class="m-hub-img"><img src="https://assets.superpress.com.tr/simpafiyatkare.png" alt="Fiyat Listesi" /></div>
+          <div class="m-hub-body">
+            <div class="m-hub-title">Fiyat Listesi</div>
+            <div class="m-hub-sub">Excel formatında hazır</div>
+            <span class="m-hub-cta">Excel İndir <span class="m-hub-arr">↓</span></span>
+          </div>
+        </a>
+      )}
     </div>
   </div>
 
