@@ -1,0 +1,21 @@
+---
+export const prerender = false;
+import Layout from '../layouts/Layout.astro';
+
+const lang = 'tr';
+---
+<Layout title="Banka Bilgilerimiz — Simpa Elektrik" lang={lang}>
+  <div class="desktop-only">
+    <div class="bc"><div class="bc-in"><a href="/">Ana Sayfa</a><span>›</span><span class="cur">Banka Bilgilerimiz</span></div></div>
+  </div>
+  <div class="mobile-only">
+    <div class="m-bc"><a href="/">Ana Sayfa</a><span>›</span><span style="color:var(--g800)">Banka Bilgilerimiz</span></div>
+  </div>
+
+  <div class="sec"><div class="sec-in" style="max-width:760px">
+    <h1 style="font-family:var(--cond);font-size:28px;color:var(--navy);margin-bottom:20px">Banka Bilgilerimiz</h1>
+    <div style="background:#FFF8E6;border:1px solid #E0B341;border-radius:8px;padding:16px 18px;font-size:13.5px;color:#8a6d1f">
+      Banka hesap bilgileri henüz eklenmedi — IBAN ve hesap detayları iletildiğinde bu sayfa güncellenecek.
+    </div>
+  </div></div>
+</Layout>
