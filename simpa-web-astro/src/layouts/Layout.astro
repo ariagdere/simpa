@@ -12,6 +12,15 @@ const { title, lang = 'tr' } = Astro.props;
 const path = Astro.url.pathname;
 const isActive = (prefix) => (prefix === '/' ? path === '/' : path.startsWith(prefix));
 
+// Locale-prefix helper for internal links
+const lp = (p) => (lang === 'en' ? `/en${p === '/' ? '' : p}` : p);
+
+// Language-switcher targets: map the current path to its TR/EN counterpart.
+// banka-bilgilerimiz has no EN version, so fall back to the EN homepage.
+const isBankPage = path === '/banka-bilgilerimiz' || path === '/en/banka-bilgilerimiz';
+const trSwitchPath = isBankPage ? '/' : path.startsWith('/en') ? path.slice(3) || '/' : path;
+const enSwitchPath = isBankPage ? '/en' : path.startsWith('/en') ? path : `/en${path === '/' ? '' : path}`;
+
 const categories = await getCategoriesWithCounts(env.DB, lang);
 const keyDocs = await getKeyDocuments(env.DB, null, lang);
 
@@ -40,20 +49,20 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
     <span style="opacity:.3">|</span>
     <a href={WHATSAPP_URL} target="_blank" rel="noopener" class="topbar-wa"><svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.45 1.27 4.9L2 22l5.25-1.38A9.96 9.96 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10Zm5.86 14.24c-.25.7-1.24 1.28-2.03 1.45-.55.11-1.26.2-3.67-.79-3.08-1.27-5.06-4.4-5.21-4.6-.15-.2-1.25-1.66-1.25-3.17s.79-2.25 1.07-2.56c.28-.31.61-.39.81-.39.2 0 .41 0 .59.01.19.01.44-.07.69.53.25.6.85 2.08.93 2.23.08.15.13.33.03.53-.1.2-.15.33-.3.5-.15.18-.31.4-.44.53-.15.15-.3.31-.13.61.17.3.76 1.25 1.63 2.02 1.12 1 2.06 1.31 2.36 1.46.3.15.48.13.65-.08.18-.2.75-.87.95-1.17.2-.3.4-.25.68-.15.28.1 1.76.83 2.06.98.3.15.5.23.57.35.08.13.08.75-.17 1.45Z"/></svg> WhatsApp</a>
     <div class="lang">
-      <a href="#" class={lang === 'tr' ? 'cur' : ''}>TR</a>
-      <a href="#" class={lang === 'en' ? 'cur' : ''}>EN</a>
+      <a href={trSwitchPath} class={lang === 'tr' ? 'cur' : ''}>TR</a>
+      <a href={enSwitchPath} class={lang === 'en' ? 'cur' : ''}>EN</a>
     </div>
   </div></div>
 
   <header class="hdr"><div class="hdr-in">
-    <a href="/"><img src="https://assets.superpress.com.tr/simpa-logo-main.png" alt="Simpa" /></a>
+    <a href={lp('/')}><img src="https://assets.superpress.com.tr/simpa-logo-main.png" alt="Simpa" /></a>
     <nav>
-      <a href="/" class={`nav-a nav-home${isActive('/') ? ' cur' : ''}`} aria-label={lang === 'en' ? 'Home' : 'Ana Sayfa'}><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11.47 3.84a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.06l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 0 0 1.061 1.06l8.69-8.69Z"/><path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.43Z"/></svg></a>
-      <a href="/kategori/" class={`nav-a${isActive('/kategori') || isActive('/urunler') ? ' cur' : ''}`}>{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</a>
+      <a href={lp('/')} class={`nav-a nav-home${isActive('/') ? ' cur' : ''}`} aria-label={lang === 'en' ? 'Home' : 'Ana Sayfa'}><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M11.47 3.84a.75.75 0 0 1 1.06 0l8.69 8.69a.75.75 0 1 0 1.06-1.06l-8.689-8.69a2.25 2.25 0 0 0-3.182 0l-8.69 8.69a.75.75 0 0 0 1.061 1.06l8.69-8.69Z"/><path d="M12 5.432l8.159 8.159c.03.03.06.058.091.086v6.198c0 1.035-.84 1.875-1.875 1.875H15a.75.75 0 0 1-.75-.75v-4.5a.75.75 0 0 0-.75-.75h-3a.75.75 0 0 0-.75.75V21a.75.75 0 0 1-.75.75H5.625a1.875 1.875 0 0 1-1.875-1.875v-6.198a2.29 2.29 0 0 0 .091-.086L12 5.43Z"/></svg></a>
+      <a href={lp('/kategori/')} class={`nav-a${isActive('/kategori') || isActive('/urunler') ? ' cur' : ''}`}>{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</a>
       <a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="nav-a">{lang === 'en' ? 'Catalog' : 'Katalog'}</a>
-      <a href="/sertifikalar" class={`nav-a${isActive('/sertifikalar') ? ' cur' : ''}`}>{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</a>
-      <a href="/hakkimizda" class={`nav-a${isActive('/hakkimizda') ? ' cur' : ''}`}>{lang === 'en' ? 'About' : 'Hakkımızda'}</a>
-      <a href="/iletisim" class="nav-a nav-cta">{lang === 'en' ? 'Contact' : 'İletişim'}</a>
+      <a href={lp('/sertifikalar')} class={`nav-a${isActive('/sertifikalar') ? ' cur' : ''}`}>{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</a>
+      <a href={lp('/hakkimizda')} class={`nav-a${isActive('/hakkimizda') ? ' cur' : ''}`}>{lang === 'en' ? 'About' : 'Hakkımızda'}</a>
+      <a href={lp('/iletisim')} class="nav-a nav-cta">{lang === 'en' ? 'Contact' : 'İletişim'}</a>
     </nav>
   </div></header>
   </div>
@@ -65,28 +74,28 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
         <a href={WHATSAPP_URL} target="_blank" rel="noopener" class="m-topbar-wa"><svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.45 1.27 4.9L2 22l5.25-1.38A9.96 9.96 0 0 0 12.04 22c5.52 0 10-4.48 10-10s-4.48-10-10-10Zm5.86 14.24c-.25.7-1.24 1.28-2.03 1.45-.55.11-1.26.2-3.67-.79-3.08-1.27-5.06-4.4-5.21-4.6-.15-.2-1.25-1.66-1.25-3.17s.79-2.25 1.07-2.56c.28-.31.61-.39.81-.39.2 0 .41 0 .59.01.19.01.44-.07.69.53.25.6.85 2.08.93 2.23.08.15.13.33.03.53-.1.2-.15.33-.3.5-.15.18-.31.4-.44.53-.15.15-.3.31-.13.61.17.3.76 1.25 1.63 2.02 1.12 1 2.06 1.31 2.36 1.46.3.15.48.13.65-.08.18-.2.75-.87.95-1.17.2-.3.4-.25.68-.15.28.1 1.76.83 2.06.98.3.15.5.23.57.35.08.13.08.75-.17 1.45Z"/></svg>WhatsApp</a>
       </div>
       <div class="ml">
-        <a href="#" class={lang === 'tr' ? 'cur' : ''}>TR</a>
-        <a href="#" class={lang === 'en' ? 'cur' : ''}>EN</a>
+        <a href={trSwitchPath} class={lang === 'tr' ? 'cur' : ''}>TR</a>
+        <a href={enSwitchPath} class={lang === 'en' ? 'cur' : ''}>EN</a>
       </div>
     </div>
     <div class="m-hdr">
-      <button class="m-hdr-menu-btn" id="mMenuBtn" aria-label="Menü">☰</button>
-      <a href="/"><img src="https://assets.superpress.com.tr/simpa-logo-main.png" alt="Simpa" /></a>
+      <button class="m-hdr-menu-btn" id="mMenuBtn" aria-label={lang === 'en' ? 'Menu' : 'Menü'}>☰</button>
+      <a href={lp('/')}><img src="https://assets.superpress.com.tr/simpa-logo-main.png" alt="Simpa" /></a>
       <span class="m-hdr-spacer"></span>
     </div>
     <div class="m-drawer-overlay" id="mDrawerOverlay">
       <div class="m-drawer-panel">
         <div class="m-drawer-hdr">
-          <span>Menü</span>
+          <span>{lang === 'en' ? 'Menu' : 'Menü'}</span>
           <button class="m-drawer-close" id="mDrawerClose">✕</button>
         </div>
         <div class="m-drawer-list">
-          <a href="/" class={`m-drawer-item${isActive('/') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Home' : 'Ana Sayfa'}</div></div></a>
-          <a href="/kategori/" class={`m-drawer-item${isActive('/kategori') || isActive('/urunler') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</div></div></a>
+          <a href={lp('/')} class={`m-drawer-item${isActive('/') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Home' : 'Ana Sayfa'}</div></div></a>
+          <a href={lp('/kategori/')} class={`m-drawer-item${isActive('/kategori') || isActive('/urunler') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Products' : 'Ürünlerimiz'}</div></div></a>
           <a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="m-drawer-item"><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Catalog' : 'Katalog'}</div></div></a>
-          <a href="/sertifikalar" class={`m-drawer-item${isActive('/sertifikalar') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</div></div></a>
-          <a href="/hakkimizda" class={`m-drawer-item${isActive('/hakkimizda') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'About' : 'Hakkımızda'}</div></div></a>
-          <a href="/iletisim" class={`m-drawer-item${isActive('/iletisim') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Contact' : 'İletişim'}</div></div></a>
+          <a href={lp('/sertifikalar')} class={`m-drawer-item${isActive('/sertifikalar') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</div></div></a>
+          <a href={lp('/hakkimizda')} class={`m-drawer-item${isActive('/hakkimizda') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'About' : 'Hakkımızda'}</div></div></a>
+          <a href={lp('/iletisim')} class={`m-drawer-item${isActive('/iletisim') ? ' on' : ''}`}><div class="m-drawer-info"><div class="m-drawer-name">{lang === 'en' ? 'Contact' : 'İletişim'}</div></div></a>
         </div>
       </div>
     </div>
@@ -103,14 +112,14 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
     </div>
     <div class="ftr-col">
       <h4>{lang === 'en' ? 'Products' : 'Ürünler'}</h4>
-      {categories.map((c) => <a href={`/kategori/${c.slug}`}>{c.name}</a>)}
+      {categories.map((c) => <a href={lp(`/kategori/${c.slug}`)}>{c.name}</a>)}
     </div>
     <div class="ftr-col">
       <h4>{lang === 'en' ? 'Company' : 'Kurumsal'}</h4>
-      <a href="/hakkimizda">Hakkımızda</a><a href="/gizlilik-ve-guvenlik">Gizlilik ve Güvenlik</a><a href="/banka-bilgilerimiz">Banka Bilgilerimiz</a><a href="/kariyer">Kariyer</a><a href="/iletisim">İletişim</a>
+      <a href={lp('/hakkimizda')}>{lang === 'en' ? 'About' : 'Hakkımızda'}</a><a href={lp('/gizlilik-ve-guvenlik')}>{lang === 'en' ? 'Privacy & Security' : 'Gizlilik ve Güvenlik'}</a>{lang === 'tr' && <a href="/banka-bilgilerimiz">Banka Bilgilerimiz</a>}<a href={lp('/kariyer')}>{lang === 'en' ? 'Careers' : 'Kariyer'}</a><a href={lp('/iletisim')}>{lang === 'en' ? 'Contact' : 'İletişim'}</a>
       <a href={LINKEDIN_URL} target="_blank" rel="noopener" class="ftr-linkedin"><svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.11 20.45H3.56V9h3.55v11.45Z"/></svg> LinkedIn</a>
     </div>
-    <div class="ftr-col"><h4>{lang === 'en' ? 'Documents' : 'Belgeler'}</h4><a href="/sertifikalar">Sertifikalar</a><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener">Katalog</a>{lang === 'tr' && <a href={keyDocs.priceListUrl || '#'} download>Fiyat Listesi</a>}</div>
+    <div class="ftr-col"><h4>{lang === 'en' ? 'Documents' : 'Belgeler'}</h4><a href={lp('/sertifikalar')}>{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</a><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener">{lang === 'en' ? 'Catalog' : 'Katalog'}</a>{lang === 'tr' && <a href={keyDocs.priceListUrl || '#'} download>Fiyat Listesi</a>}</div>
   </div><div class="ftr-bot">
     <p>© 2026 Simpa Elektrik Malzemesi San. ve Tic. A.Ş.</p>
     <div class="cert-logos"><span class="cert-badge">ISO</span><span class="cert-badge">CE</span><span class="cert-badge">EAC</span><span class="cert-badge">RoHS</span></div>
@@ -126,8 +135,8 @@ const LINKEDIN_URL = 'https://www.linkedin.com/company/simpaelektrik/';
         <a href={LINKEDIN_URL} target="_blank" rel="noopener" aria-label="LinkedIn" class="m-ftr-li"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.94v5.67H9.34V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.11 20.45H3.56V9h3.55v11.45Z"/></svg></a>
       </div>
       <div class="m-ftr-links">
-        {categories.map((c) => <a href={`/kategori/${c.slug}`}>{c.name}</a>)}
-        <a href="/hakkimizda">Hakkımızda</a><a href="/sertifikalar">Sertifikalar</a><a href="/gizlilik-ve-guvenlik">Gizlilik ve Güvenlik</a><a href="/banka-bilgilerimiz">Banka Bilgilerimiz</a><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener">Katalog</a>{lang === 'tr' && <a href={keyDocs.priceListUrl || '#'} download>Fiyat Listesi</a>}<a href="/iletisim">İletişim</a>
+        {categories.map((c) => <a href={lp(`/kategori/${c.slug}`)}>{c.name}</a>)}
+        <a href={lp('/hakkimizda')}>{lang === 'en' ? 'About' : 'Hakkımızda'}</a><a href={lp('/sertifikalar')}>{lang === 'en' ? 'Certificates' : 'Sertifikalar'}</a><a href={lp('/gizlilik-ve-guvenlik')}>{lang === 'en' ? 'Privacy & Security' : 'Gizlilik ve Güvenlik'}</a>{lang === 'tr' && <a href="/banka-bilgilerimiz">Banka Bilgilerimiz</a>}<a href={lp('/kariyer')}>{lang === 'en' ? 'Careers' : 'Kariyer'}</a><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener">{lang === 'en' ? 'Catalog' : 'Katalog'}</a>{lang === 'tr' && <a href={keyDocs.priceListUrl || '#'} download>Fiyat Listesi</a>}<a href={lp('/iletisim')}>{lang === 'en' ? 'Contact' : 'İletişim'}</a>
       </div>
       <div class="m-ftr-copy">© 2026 Simpa Elektrik Malzemesi San. ve Tic. A.Ş.</div>
     </div>
