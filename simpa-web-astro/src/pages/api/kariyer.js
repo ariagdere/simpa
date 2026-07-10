@@ -90,9 +90,19 @@ export async function POST({ request }) {
         .join('\n')}
     `;
 
-    // NOT: 'from' adresi contact.js'de kullanılan mail.simpaelektrik.com.tr alt alan
-    // adresiyle birebir aynı olmalı (SPF izolasyonu için kurulan adres neyse).
-    // contact.js'i kontrol edip gerekirse burayı güncelle.
+    // GEÇİCİ TEŞHİS: RESEND_API_KEY worker'a gerçekten bağlanmış mı, en baştan kontrol et.
+    if (!env.RESEND_API_KEY) {
+      return new Response(
+        JSON.stringify({
+          error: 'Sunucu tarafında e-posta anahtarı bulunamadı.',
+          debug: 'env.RESEND_API_KEY tanımsız/boş — Worker Settings → Variables and Secrets kısmını kontrol et.',
+        }),
+        { status: 500, headers: { 'Content-Type': 'application/json' } },
+      );
+    }
+
+    // NOT: 'from' adresi contact.js'de kullanılan domain ile birebir aynı olmalı — ikisi de
+    // cont.simpaelektrik.com.tr üzerinden gönderiyor olmalı, orada farklıysa güncelle.
     const resendRes = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -100,7 +110,7 @@ export async function POST({ request }) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Simpa Elektrik Kariyer <web@mail.simpaelektrik.com.tr>',
+        from: 'Simpa Elektrik Kariyer <web@cont.simpaelektrik.com.tr>',
         to: ['info@simpaelektrik.com.tr'],
         reply_to: email,
         subject: `Yeni İş Başvurusu: ${name}${department ? ' — ' + department : ''}`,
@@ -110,9 +120,13 @@ export async function POST({ request }) {
 
     if (!resendRes.ok) {
       const errText = await resendRes.text();
-      console.error('Resend error:', errText);
+      console.error('Resend error:', resendRes.status, errText);
+      // GEÇİCİ TEŞHİS: asıl Resend hatasını response'a ekliyoruz, kök sebep bulununca kaldıracağız.
       return new Response(
-        JSON.stringify({ error: 'Başvuru gönderilirken bir sorun oluştu. Lütfen tekrar deneyin.' }),
+        JSON.stringify({
+          error: 'Başvuru gönderilirken bir sorun oluştu. Lütfen tekrar deneyin.',
+          debug: `HTTP ${resendRes.status}: ${errText}`,
+        }),
         { status: 502, headers: { 'Content-Type': 'application/json' } },
       );
     }
@@ -123,9 +137,12 @@ export async function POST({ request }) {
     });
   } catch (err) {
     console.error('Kariyer form error:', err);
-    return new Response(JSON.stringify({ error: 'Beklenmeyen bir hata oluştu.' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        error: 'Beklenmeyen bir hata oluştu.',
+        debug: String((err && err.message) || err),
+      }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } },
+    );
   }
 }
