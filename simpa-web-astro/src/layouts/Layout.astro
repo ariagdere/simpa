@@ -10,16 +10,56 @@ interface Props {
 }
 const { title, lang = 'tr' } = Astro.props;
 const path = Astro.url.pathname;
-const isActive = (prefix) => (prefix === '/' ? path === '/' : path.startsWith(prefix));
 
-// Locale-prefix helper for internal links
-const lp = (p) => (lang === 'en' ? `/en${p === '/' ? '' : p}` : p);
+// TR <-> EN sabit yol segmenti eşleştirmesi (örn. /kategori -> /en/category)
+const SEGMENT_MAP = {
+  hakkimizda: 'about',
+  iletisim: 'contact',
+  kariyer: 'careers',
+  sertifikalar: 'certificates',
+  'gizlilik-ve-guvenlik': 'privacy-security',
+  kategori: 'category',
+  urunler: 'products',
+};
+const SEGMENT_MAP_REVERSE = Object.fromEntries(Object.entries(SEGMENT_MAP).map(([tr, en]) => [en, tr]));
 
-// Language-switcher targets: map the current path to its TR/EN counterpart.
-// banka-bilgilerimiz has no EN version, so fall back to the EN homepage.
-const isBankPage = path === '/banka-bilgilerimiz' || path === '/en/banka-bilgilerimiz';
-const trSwitchPath = isBankPage ? '/' : path.startsWith('/en') ? path.slice(3) || '/' : path;
-const enSwitchPath = isBankPage ? '/en' : path.startsWith('/en') ? path : `/en${path === '/' ? '' : path}`;
+// Locale-prefix helper: TR path'i alır, lang==='en' ise EN karşılığına çevirir
+const lp = (p) => {
+  if (lang !== 'en') return p;
+  if (p === '/') return '/en';
+  const m = p.match(/^\/([a-z-]+)(\/.*)?$/);
+  if (!m) return `/en${p}`;
+  const [, seg, restRaw] = m;
+  return `/en/${SEGMENT_MAP[seg] || seg}${restRaw || ''}`;
+};
+
+// isActive her zaman TR prefix'i ile çağrılır, lp() ile o dile çevrilip karşılaştırılır
+const isActive = (prefix) => {
+  const target = lp(prefix);
+  return prefix === '/' ? path === target : path.startsWith(target);
+};
+
+// Dil değiştirici hedefleri: mevcut path'ten TR ve EN karşılıklarını hesapla.
+// banka-bilgilerimiz'in EN karşılığı yok, EN tarafında ana sayfaya düşer.
+const isBankPage = path === '/banka-bilgilerimiz';
+let trSwitchPath;
+let enSwitchPath;
+if (isBankPage) {
+  trSwitchPath = '/banka-bilgilerimiz';
+  enSwitchPath = '/en';
+} else if (path.startsWith('/en')) {
+  const stripped = path.slice(3) || '/';
+  if (stripped === '/') {
+    trSwitchPath = '/';
+  } else {
+    const m = stripped.match(/^\/([a-z-]+)(\/.*)?$/);
+    trSwitchPath = m ? `/${SEGMENT_MAP_REVERSE[m[1]] || m[1]}${m[2] || ''}` : stripped;
+  }
+  enSwitchPath = path;
+} else {
+  trSwitchPath = path;
+  enSwitchPath = lp(path);
+}
 
 const categories = await getCategoriesWithCounts(env.DB, lang);
 const keyDocs = await getKeyDocuments(env.DB, null, lang);
