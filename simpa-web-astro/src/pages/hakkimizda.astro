@@ -38,12 +38,11 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
   <div class="sec"><div class="sec-in" style="max-width:960px">
     <h2 style="font-family:var(--cond);font-size:26px;color:var(--navy);margin-bottom:20px">Tarihçe</h2>
-    <div class="tarihce-layout">
+    <div class="tarihce-text">
       <figure class="tarihce-img">
         <img src="https://assets.superpress.com.tr/Simpa-70ler.jpg" alt="Simpa Elektrik, 1970'ler" loading="lazy" />
       </figure>
-      <div class="tarihce-text">
-        <p>Simpa Elektrik, "Simpa Kollektif Şirketi" unvanı ile, 1977 yılının Haziran ayında, elektrik bağlantı malzemeleri üretmek amacıyla kurulmuştur.</p>
+      <p>Simpa Elektrik, "Simpa Kollektif Şirketi" unvanı ile, 1977 yılının Haziran ayında, elektrik bağlantı malzemeleri üretmek amacıyla kurulmuştur.</p>
         <p>6 Ocak 1984'te, firma nevi Anonim Şirkete dönüştürülmüştür.</p>
         <p>1992 yılında aldığı TSEK belgesi ile ülkemizde standardı henüz bulunmayan ürünleri ile ilgili dünya standartlarını takip etmiş ve kaliteye verdiği önemi kanıtlamıştır.</p>
         <p>2000 yılında, ürün yelpazesi genişleyen Simpa Elektrik, üretim zincirini rahatlatmak ve ürün kalitesini artırmak amacıyla Yukarı Dudullu'da bulunan DES Sanayi Sitesi'ndeki yerine taşınmıştır.</p>
@@ -55,7 +54,6 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
         <p>2020 yılında ise ülkemizde tarafsız hizmetler veren, güzide üniversitelerimizden Boğaziçi Üniversitesi çatısı altında bulunan "Boğaziçi Üniversitesi Sabih Tansal Yüksek Akım Laboratuvarı"nda yapılan test sonucunda, ürününün TS EN 61238-1-1'e uygunluğunu akademik ortamda ispatlamıştır.</p>
         <p>Simpa Elektrik, bugün, bu standartlar çerçevesinde, sıkmalı kablo pabuçları, sıkmalı ek mufları, topraklama baraları ve izoleli baralar üretmektedir.</p>
         <p>Türkiye'de sektör liderleri arasında yer alan Simpa Elektrik, ihracat konusunda da hızla ilerlemektedir. Avrupa ülkeleri başta olmak üzere, 20'yi aşkın ülkeye ihracat yapmakta olup, %100 müşteri memnuniyeti politikası ile hızla büyümektedir.</p>
-      </div>
     </div>
   </div></div>
 
@@ -83,9 +81,9 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 </Layout>
 
 <style>
-  .tarihce-layout { display: grid; grid-template-columns: 320px 1fr; gap: 32px; align-items: start; }
-  .tarihce-img { border: 1px solid var(--g200); border-radius: 10px; overflow: hidden; box-shadow: var(--sh); }
-  .tarihce-img img { width: 100%; height: 380px; object-fit: cover; display: block; background: var(--g100); }
+  .tarihce-img { float: left; width: 380px; margin: 0 28px 16px 0; border: 1px solid var(--g200); border-radius: 10px; overflow: hidden; box-shadow: var(--sh); }
+  .tarihce-img img { width: 100%; height: auto; display: block; }
+  .tarihce-text::after { content: ''; display: table; clear: both; }
   .tarihce-text p { font-size: 14.5px; color: var(--g600); line-height: 1.85; margin-bottom: 14px; }
   .tarihce-text p:last-child { margin-bottom: 0; }
 
@@ -98,9 +96,9 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
   .kalite-img img { width: 100%; height: auto; display: block; border-radius: 4px; }
 
   @media (max-width: 860px) {
-    .tarihce-layout { grid-template-columns: 1fr; }
-    .tarihce-img img { height: 220px; }
+    .tarihce-img { float: none; width: 100%; margin: 0 0 16px 0; }
     .kalite-layout { grid-template-columns: 1fr; }
     .kalite-img { order: -1; max-width: 280px; margin: 0 auto; }
+    .about-in { grid-template-columns: 1fr !important; gap: 28px !important; }
   }
 </style>
