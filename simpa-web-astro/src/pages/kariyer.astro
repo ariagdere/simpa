@@ -156,7 +156,32 @@ const departments = [
     background: #fff;
   }
   .cf-input:focus { outline: none; border-color: var(--blue); }
-  .lang-row { display: grid; grid-template-columns: 2fr 1fr auto; gap: 10px; align-items: center; }
+  .lang-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr auto;
+    gap: 8px;
+    align-items: center;
+    background: var(--g50);
+    border: 1px solid var(--g200);
+    border-radius: 8px;
+    padding: 8px;
+  }
+  .lang-row .cf-input { background: #fff; }
+  .lang-remove {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border: 1px solid var(--g200);
+    border-radius: 50%;
+    color: var(--g600);
+    font-size: 14px;
+    cursor: pointer;
+  }
+  .lang-remove:hover { background: #fdecec; border-color: #f0b3b3; color: #a32020; }
   @media (max-width: 860px) {
     #careerForm > div[style*="grid-template-columns"] { grid-template-columns: 1fr !important; }
     .lang-row { grid-template-columns: 1fr 1fr auto; }
@@ -200,7 +225,7 @@ const departments = [
     row.innerHTML = `
       <input type="text" class="cf-input lang-name" placeholder="Dil (örn: İngilizce)" />
       <select class="cf-input lang-level">${levels.map((l) => `<option>${l}</option>`).join('')}</select>
-      <button type="button" class="lang-remove" style="background:none;border:none;color:var(--g600);cursor:pointer;font-size:18px;line-height:1">×</button>
+      <button type="button" class="lang-remove">×</button>
     `;
     row.querySelector('.lang-remove').addEventListener('click', () => row.remove());
     langRows.appendChild(row);
