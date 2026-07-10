@@ -248,11 +248,7 @@ const departments = [
         body: JSON.stringify(payload),
       });
       const data = await res.json();
-      if (!res.ok) {
-        const e = new Error(data.error || 'Bir hata oluştu.');
-        e.debug = data.debug;
-        throw e;
-      }
+      if (!res.ok) throw new Error(data.error || 'Bir hata oluştu.');
       successBox.style.display = 'block';
       form.reset();
       langRows.innerHTML = '';
@@ -261,7 +257,7 @@ const departments = [
       militaryWrap.style.display = 'none';
       successBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
     } catch (err) {
-      errorBox.textContent = (err.message || 'Bir hata oluştu, lütfen tekrar deneyin.') + (err.debug ? ' — ' + err.debug : '');
+      errorBox.textContent = err.message || 'Bir hata oluştu, lütfen tekrar deneyin.';
       errorBox.style.display = 'block';
     } finally {
       submitBtn.disabled = false;
