@@ -31,10 +31,12 @@ export async function POST({ request }) {
       references,
       note,
       turnstileToken,
+      lang,
     } = body;
+    const en = lang === 'en';
 
     if (!name || !email) {
-      return new Response(JSON.stringify({ error: 'İsim ve e-posta zorunludur.' }), {
+      return new Response(JSON.stringify({ error: en ? 'Name and email are required.' : 'İsim ve e-posta zorunludur.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -42,7 +44,7 @@ export async function POST({ request }) {
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailPattern.test(email)) {
-      return new Response(JSON.stringify({ error: 'Geçerli bir e-posta adresi girin.' }), {
+      return new Response(JSON.stringify({ error: en ? 'Please enter a valid email address.' : 'Geçerli bir e-posta adresi girin.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -60,7 +62,7 @@ export async function POST({ request }) {
     const turnstileData = await turnstileRes.json();
     if (!turnstileData.success) {
       console.error('Turnstile doğrulaması başarısız:', turnstileData['error-codes']);
-      return new Response(JSON.stringify({ error: 'Doğrulama başarısız oldu. Lütfen tekrar deneyin.' }), {
+      return new Response(JSON.stringify({ error: en ? 'Verification failed. Please try again.' : 'Doğrulama başarısız oldu. Lütfen tekrar deneyin.' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -100,7 +102,7 @@ export async function POST({ request }) {
     );
 
     const htmlBody = `
-      <h2>Yeni İş Başvurusu</h2>
+      <h2>Yeni İş Başvurusu${en ? ' (EN site)' : ''}</h2>
       ${rows
         .map(
           ([label, value]) =>
@@ -112,7 +114,7 @@ export async function POST({ request }) {
     if (!env.RESEND_API_KEY) {
       console.error('RESEND_API_KEY tanımsız');
       return new Response(
-        JSON.stringify({ error: 'Başvuru şu anda gönderilemiyor. Lütfen daha sonra tekrar deneyin.' }),
+        JSON.stringify({ error: en ? 'Applications cannot be submitted right now. Please try again later.' : 'Başvuru şu anda gönderilemiyor. Lütfen daha sonra tekrar deneyin.' }),
         { status: 500, headers: { 'Content-Type': 'application/json' } },
       );
     }
@@ -136,7 +138,7 @@ export async function POST({ request }) {
       const errText = await resendRes.text();
       console.error('Resend error:', resendRes.status, errText);
       return new Response(
-        JSON.stringify({ error: 'Başvuru gönderilirken bir sorun oluştu. Lütfen tekrar deneyin.' }),
+        JSON.stringify({ error: en ? 'Something went wrong while submitting your application. Please try again.' : 'Başvuru gönderilirken bir sorun oluştu. Lütfen tekrar deneyin.' }),
         { status: 502, headers: { 'Content-Type': 'application/json' } },
       );
     }
@@ -147,7 +149,7 @@ export async function POST({ request }) {
     });
   } catch (err) {
     console.error('Kariyer form error:', err);
-    return new Response(JSON.stringify({ error: 'Beklenmeyen bir hata oluştu.' }), {
+    return new Response(JSON.stringify({ error: 'Beklenmeyen bir hata oluştu. / An unexpected error occurred.' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
