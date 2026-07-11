@@ -65,12 +65,12 @@ export async function GET() {
 
   // Ürün detay sayfaları (TR her zaman, EN sadece title_en dolu olanlar için)
   for (const p of prodsTr) {
-    const trPath = `/urunler/${encodeURIComponent(p.prod_code)}`;
-    const enPath = enCodes.has(p.prod_code) ? `/en/products/${encodeURIComponent(p.prod_code)}` : null;
+    const trPath = `/urunler/${p.prod_code}`;
+    const enPath = enCodes.has(p.prod_code) ? `/en/products/${p.prod_code}` : null;
     xml += urlEntry(trPath, enPath, '0.7');
   }
   for (const p of prodsEn) {
-    xml += urlEntryEn(`/en/products/${encodeURIComponent(p.prod_code)}`, `/urunler/${encodeURIComponent(p.prod_code)}`, '0.7');
+    xml += urlEntryEn(`/en/products/${p.prod_code}`, `/urunler/${p.prod_code}`, '0.7');
   }
 
   xml += '</urlset>';
