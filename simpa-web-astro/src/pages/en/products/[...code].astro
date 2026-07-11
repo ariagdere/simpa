@@ -32,7 +32,7 @@ if (!product) {
 
 // Bu ürünün TR karşılığı var mı? Yoksa dil switcher'ı "All Products"a düşsün, 404'e değil.
 const trExists = await db.prepare('SELECT 1 FROM products WHERE prod_code = ? AND title_tr IS NOT NULL').bind(code).first();
-const trSwitchOverride = trExists ? `/urunler/${encodeURIComponent(code)}` : '/kategori/';
+const trSwitchOverride = trExists ? `/urunler/${code}` : '/kategori/';
 
 const [specsRaw, description, specialNote, drawingUrl, images, certificates, compatible, related, keyDocs] = await Promise.all([
   getProductSpecs(db, product.id, lang),
