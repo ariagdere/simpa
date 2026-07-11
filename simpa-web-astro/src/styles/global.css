@@ -146,8 +146,11 @@ nav{display:flex;gap:4px;margin-left:auto}
 .m-ftr-social{display:flex;align-items:center;gap:16px;margin-bottom:16px}
 .m-ftr-social a{color:rgba(255,255,255,.7);text-decoration:none}
 .m-ftr-social .m-ftr-wa{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600}
-.m-ftr-links{display:grid;grid-template-columns:1fr 1fr;gap:5px 14px;margin-bottom:14px}
-.m-ftr-links a{color:rgba(255,255,255,.6);text-decoration:none;font-size:12px}
+.m-ftr-groups{display:flex;flex-direction:column;gap:16px;margin-bottom:16px}
+.m-ftr-group-h{font-family:var(--cond);text-transform:uppercase;font-size:11px;font-weight:700;letter-spacing:.06em;color:rgba(255,255,255,.4);margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid rgba(255,255,255,.12)}
+.m-ftr-group-links{display:flex;flex-wrap:wrap;gap:7px 16px}
+.m-ftr-group-links a{font-size:12.5px;color:rgba(255,255,255,.75);text-decoration:none}
+.m-ftr-group-links a:active{color:#fff}
 .m-ftr-copy{font-size:11px;color:rgba(255,255,255,.3);border-top:1px solid rgba(255,255,255,.1);padding-top:12px}
 
 /* ═══════════════════════════
