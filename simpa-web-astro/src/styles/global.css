@@ -12,7 +12,7 @@
 }
 :root{
   --navy:#1a2e4a;--blue:#1e5fa8;--blue-l:#2e7dd4;
-  --accent:#e8a020;--accent-l:#f5c355;
+  --accent:#e8a020;--accent-l:#f5c355;--accent-rgb:232,160,32;
   --g50:#f8f9fb;--g100:#eef1f5;--g200:#dde3ec;
   --g400:#8a96a8;--g600:#4a5568;--g800:#1e2535;
   --white:#fff;--green:#1a7a40;
@@ -117,7 +117,7 @@ nav{display:flex;gap:4px;margin-left:auto}
 .m-topbar .ml a{color:rgba(255,255,255,.6);font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;text-decoration:none}
 .m-topbar .ml a.cur{background:var(--accent);color:var(--navy)}
 .m-hdr{background:#fff;border-bottom:1px solid var(--g200);padding:10px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--sh)}
-.m-hdr img{height:30px;width:auto}
+.m-hdr img{height:30px;width:auto;margin-top:5px}
 .m-hdr-menu-btn{background:none;border:none;font-size:22px;color:var(--navy);cursor:pointer;padding:4px 8px;line-height:1}
 .m-hdr-spacer{width:38px}
 .ham{display:flex;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
