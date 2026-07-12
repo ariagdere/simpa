@@ -3,33 +3,28 @@
 export const prerender = false;
 
 import Layout from '../../layouts/Layout.astro';
-import { getAllCertificates, getHomeStats, getKeyDocuments } from '../../lib/queries.js';
+import HeroSlider from '../../components/HeroSlider.astro';
+import { getAllCertificates, getHomeStats, getKeyDocuments, getActiveHeroSlides } from '../../lib/queries.js';
 import { env } from 'cloudflare:workers';
 
 const lang = 'en';
 const db = env.DB;
 
-const [certificates, stats, keyDocs] = await Promise.all([getAllCertificates(db), getHomeStats(db), getKeyDocuments(db, null, lang)]);
+const [certificates, stats, keyDocs, heroSlides] = await Promise.all([
+  getAllCertificates(db),
+  getHomeStats(db),
+  getKeyDocuments(db, null, lang),
+  getActiveHeroSlides(db, 'Simpa', lang),
+]);
 
 const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 ---
 <Layout title="Simpa Elektrik" lang={lang}>
 
+<HeroSlider slides={heroSlides} />
+
 <!-- ══════════ DESKTOP ══════════ -->
 <div class="desktop-only">
-  <div class="hero"><div class="hero-in">
-    <div class="hero-l">
-      <div class="badge">Since 1977</div>
-      <h1>Reliable <em>Electrical Connection</em> Solutions</h1>
-      <p>Years of manufacturing experience in compression cable lugs, busbars and connection equipment. ISO 9001, CE and EAC certified products.</p>
-      <div class="hero-btns">
-        <a href="/en/category/" class="btn-p">Browse Products →</a>
-        <a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="btn-s"><svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15"><path fill-rule="evenodd" d="M4 4a2 2 0 0 1 2-2h4.586A2 2 0 0 1 12 2.586L15.414 6A2 2 0 0 1 16 7.414V16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4Zm2 6a1 1 0 1 0 0 2h8a1 1 0 1 0 0-2H6Zm0 4a1 1 0 1 0 0 2h5a1 1 0 1 0 0-2H6Z" clip-rule="evenodd" /></svg> Download Catalog</a>
-      </div>
-    </div>
-    <div class="hero-r"><img src="https://assets.superpress.com.tr/documents/simpaocak26kattr.png" alt="Simpa Elektrik Catalog" /></div>
-  </div></div>
-
   <div class="stats-bar"><div class="stats-bar-in">
     <div class="stat"><div class="stat-n">45<span>+</span></div><div class="stat-l">Years of experience</div></div>
     <div class="stat"><div class="stat-n">{varietyRounded}<span>+</span></div><div class="stat-l">Product variants</div></div>
@@ -94,15 +89,6 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
 <!-- ══════════ MOBILE ══════════ -->
 <div class="mobile-only">
-  <div class="m-hero">
-    <img class="m-hero-img" src="https://assets.superpress.com.tr/documents/simpaocak26kattr.png" alt="Simpa Elektrik Catalog" />
-    <div class="m-hero-body">
-      <div class="m-badge">Since 1977</div>
-      <h1>Reliable <em>Electrical Connection</em> Solutions</h1>
-      <p>ISO 9001, CE and EAC certified cable lugs, busbars and connection equipment.</p>
-      <div class="m-hero-btns"><a href="/en/category/" class="m-btn-p">Browse Products</a><a href={keyDocs.catalogUrl || '#'} target="_blank" rel="noopener" class="m-btn-s">Catalog</a></div>
-    </div>
-  </div>
 
   <div class="m-stats">
     <div class="m-stat"><div class="m-stat-n">45<span>+</span></div><div class="m-stat-l">Years</div></div>
