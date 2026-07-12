@@ -14,7 +14,7 @@ const [certificates, stats, keyDocs] = await Promise.all([getAllCertificates(db)
 // 1.328 varyant + 12 alet gibi tam sayıyı pazarlama diliyle yuvarlıyoruz (örn. 1340 -> "1.300+")
 const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 ---
-<Layout title="Simpa Elektrik — Güvenilir Elektrik Bağlantı Çözümleri" lang={lang}>
+<Layout title="Simpa Elektrik" lang={lang}>
 
 <!-- ══════════ MASAÜSTÜ ══════════ -->
 <div class="desktop-only">
