@@ -1,12 +1,16 @@
 ---
 export const prerender = false;
 import Layout from '../../layouts/Layout.astro';
-import { getHomeStats } from '../../lib/queries.js';
+import { getHomeStats, getPageSection } from '../../lib/queries.js';
 import { env } from 'cloudflare:workers';
 
 const lang = 'en';
 const stats = await getHomeStats(env.DB);
 const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
+const [tarihce, kalitePolitikasi] = await Promise.all([
+  getPageSection(env.DB, 'Simpa', 'hakkimizda', 'ana_metin', lang),
+  getPageSection(env.DB, 'Simpa', 'hakkimizda', 'kalite_politikasi', lang),
+]);
 ---
 <Layout title="About — Simpa Elektrik" lang={lang}>
   <div class="desktop-only">
@@ -42,37 +46,14 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
       <figure class="tarihce-img">
         <img src="https://assets.superpress.com.tr/Simpa-70ler.jpg" alt="Simpa Elektrik in the 1970s" loading="lazy" />
       </figure>
-      <p>Simpa Elektrik was founded in June 1977 under the name "Simpa Kollektif Şirketi" to manufacture electrical connection equipment.</p>
-        <p>On 6 January 1984, the company's legal structure was converted into a joint-stock company (Anonim Şirket).</p>
-        <p>With the TSEK certificate obtained in 1992, the company followed international standards for products that had no domestic standard at the time, demonstrating the importance it placed on quality.</p>
-        <p>In 2000, as its product range expanded, Simpa Elektrik relocated to its facility at the DES Sanayi Sitesi in Yukarı Dudullu to streamline its production chain and improve product quality.</p>
-        <p>In 2003, the company certified its products under the TS 12123 standard developed by the Turkish Standards Institute.</p>
-        <p>From 2009 onward, the company documented its compliance with international quality standards through dual-accredited ISO 9001:2008 certification.</p>
-        <p>In 2015, the company carried out laboratory studies in line with the TS EN 61238-1 standard developed by the Turkish Standards Institute for its products, and earned certification proving its products' compliance with that standard.</p>
-        <p>In 2015, following updates to international quality management standards, the company incorporated risk-based thinking across all of its operational processes and certified its services accordingly under ISO 9001:2015.</p>
-        <p>In 2019, the company obtained EAC certification, confirming that its manufacturing meets the requirements for exporting products to Russian markets.</p>
-        <p>In 2020, tests carried out at the Boğaziçi University Sabih Tansal High Current Laboratory — operating under Boğaziçi University, one of Turkey's leading providers of independent testing services — proved in an academic setting that the company's product complies with TS EN 61238-1-1.</p>
-        <p>Today, within this standards framework, Simpa Elektrik manufactures compression cable lugs, compression splice connectors, earthing busbars and insulated busbars.</p>
-        <p>A leader in its sector in Turkey, Simpa Elektrik is also expanding rapidly in exports. It ships to more than 20 countries, primarily in Europe, and continues to grow quickly under a 100% customer satisfaction policy.</p>
+      <Fragment set:html={tarihce} />
     </div>
   </div></div>
 
   <div class="sec" style="background:var(--g50)"><div class="sec-in" style="max-width:960px">
     <h2 style="font-family:var(--cond);font-size:26px;color:var(--navy);margin-bottom:20px">Our Quality Policy</h2>
     <div class="kalite-layout">
-      <div class="kalite-text">
-        <p>As members of SİMPA ELEKTRİK MALZEMESİ SANAYİ VE TİC. A.Ş., in order to meet customer satisfaction in the products we manufacture, we undertake to:</p>
-        <ul class="kalite-list">
-          <li>Establish and maintain an effective management system,</li>
-          <li>Comply with the ISO 9001 Quality Management system and applicable legal, regulatory and customer requirements,</li>
-          <li>Ensure the continuous improvement of our products, processes and management system,</li>
-          <li>Reinforce customer satisfaction awareness through training,</li>
-          <li>Provide quality products and services by increasing the knowledge and skill level of our employees,</li>
-          <li>Offer our customers the best service within a framework of honesty,</li>
-          <li>Ensure that all applicable requirements are fulfilled and that the necessary resources remain available for this purpose.</li>
-        </ul>
-        <p>Our approach to service is to keep customer satisfaction in view at every stage — order, production and shipment — and to continually seek new ways to increase it.</p>
-      </div>
+      <div class="kalite-text" set:html={kalitePolitikasi} />
       <figure class="kalite-img">
         <img src="https://assets.superpress.com.tr/TSEK-001.jpg" alt="TSEK Certificate" loading="lazy" />
       </figure>
@@ -89,9 +70,9 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
   .kalite-layout { display: grid; grid-template-columns: 1fr 260px; gap: 32px; align-items: start; }
   .kalite-text p { font-size: 14.5px; color: var(--g600); line-height: 1.85; margin-bottom: 4px; }
-  .kalite-list { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
-  .kalite-list li { position: relative; padding-left: 22px; font-size: 14.5px; color: var(--g600); line-height: 1.7; }
-  .kalite-list li::before { content: '✓'; position: absolute; left: 0; top: 0; color: var(--blue); font-weight: 700; }
+  .kalite-text ul { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
+  .kalite-text li { position: relative; padding-left: 22px; font-size: 14.5px; color: var(--g600); line-height: 1.7; }
+  .kalite-text li::before { content: '✓'; position: absolute; left: 0; top: 0; color: var(--blue); font-weight: 700; }
   .kalite-img { border: 1px solid var(--g200); border-radius: 10px; overflow: hidden; background: #fff; padding: 10px; box-shadow: var(--sh); }
   .kalite-img img { width: 100%; height: auto; display: block; border-radius: 4px; }
 
