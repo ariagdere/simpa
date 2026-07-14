@@ -1,12 +1,16 @@
 ---
 export const prerender = false;
 import Layout from '../layouts/Layout.astro';
-import { getHomeStats } from '../lib/queries.js';
+import { getHomeStats, getPageSection } from '../lib/queries.js';
 import { env } from 'cloudflare:workers';
 
 const lang = 'tr';
 const stats = await getHomeStats(env.DB);
 const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
+const [tarihce, kalitePolitikasi] = await Promise.all([
+  getPageSection(env.DB, 'Simpa', 'hakkimizda', 'ana_metin', lang),
+  getPageSection(env.DB, 'Simpa', 'hakkimizda', 'kalite_politikasi', lang),
+]);
 ---
 <Layout title="Hakkımızda — Simpa Elektrik" lang={lang}>
   <div class="desktop-only">
@@ -42,37 +46,14 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
       <figure class="tarihce-img">
         <img src="https://assets.superpress.com.tr/Simpa-70ler.jpg" alt="Simpa Elektrik, 1970'ler" loading="lazy" />
       </figure>
-      <p>Simpa Elektrik, "Simpa Kollektif Şirketi" unvanı ile, 1977 yılının Haziran ayında, elektrik bağlantı malzemeleri üretmek amacıyla kurulmuştur.</p>
-        <p>6 Ocak 1984'te, firma nevi Anonim Şirkete dönüştürülmüştür.</p>
-        <p>1992 yılında aldığı TSEK belgesi ile ülkemizde standardı henüz bulunmayan ürünleri ile ilgili dünya standartlarını takip etmiş ve kaliteye verdiği önemi kanıtlamıştır.</p>
-        <p>2000 yılında, ürün yelpazesi genişleyen Simpa Elektrik, üretim zincirini rahatlatmak ve ürün kalitesini artırmak amacıyla Yukarı Dudullu'da bulunan DES Sanayi Sitesi'ndeki yerine taşınmıştır.</p>
-        <p>2003 yılında Türk Standartları Enstitüsü tarafından ürünleri için geliştirilen TS 12123 standardı belgesini alarak ürünlerini belgelendirmiştir.</p>
-        <p>2009 yılı sonrasında, uluslararası kalite standartlarına uygun hizmet sunduğunu, çift akreditasyonlu ISO 9001:2008 sertifikasıyla belgelemiştir.</p>
-        <p>2015 yılında Türk Standartları Enstitüsü tarafından, ürünleri için geliştirilen TS EN 61238-1 standardı doğrultusunda laboratuvar çalışmaları gerçekleştirmiş ve ürünlerinin bu standarda uygunluğunu ispat eden belge almaya hak kazanmıştır.</p>
-        <p>2015 yılında güncellenen uluslararası kalite yönetim standartlarındaki gelişmeleri takip ederek, risk olgusunu tüm faaliyet süreçlerinde değerlendirmiş ve hizmetlerini bu doğrultuda ISO 9001:2015 belgesi ile belgelendirmiştir.</p>
-        <p>2019 yılında EAC belgesini alarak Rusya pazarlarına ürün ihracatı ile ilgili üretim gerekliliklerini karşıladığını belgelendirmiştir.</p>
-        <p>2020 yılında ise ülkemizde tarafsız hizmetler veren, güzide üniversitelerimizden Boğaziçi Üniversitesi çatısı altında bulunan "Boğaziçi Üniversitesi Sabih Tansal Yüksek Akım Laboratuvarı"nda yapılan test sonucunda, ürününün TS EN 61238-1-1'e uygunluğunu akademik ortamda ispatlamıştır.</p>
-        <p>Simpa Elektrik, bugün, bu standartlar çerçevesinde, sıkmalı kablo pabuçları, sıkmalı ek mufları, topraklama baraları ve izoleli baralar üretmektedir.</p>
-        <p>Türkiye'de sektör liderleri arasında yer alan Simpa Elektrik, ihracat konusunda da hızla ilerlemektedir. Avrupa ülkeleri başta olmak üzere, 20'yi aşkın ülkeye ihracat yapmakta olup, %100 müşteri memnuniyeti politikası ile hızla büyümektedir.</p>
+      <Fragment set:html={tarihce} />
     </div>
   </div></div>
 
   <div class="sec" style="background:var(--g50)"><div class="sec-in" style="max-width:960px">
     <h2 style="font-family:var(--cond);font-size:26px;color:var(--navy);margin-bottom:20px">Kalite Politikamız</h2>
     <div class="kalite-layout">
-      <div class="kalite-text">
-        <p>Bizler, SİMPA ELEKTRİK MALZEMESİ SANAYİ VE TİC. A.Ş. mensupları olarak, ürettiğimiz ürünlerde müşteri memnuniyetini karşılamak için;</p>
-        <ul class="kalite-list">
-          <li>Etkin bir yönetim sistemi oluşturup devam ettirmeyi,</li>
-          <li>ISO 9001 Kalite Yönetim sistemi, yasal, mevzuat ve müşteri şartlarına uymayı,</li>
-          <li>Ürünlerimizin, süreçlerimizin ve yönetim sistemimizin sürekli iyileştirilmesini sağlamayı,</li>
-          <li>Müşteri memnuniyeti bilincinin eğitimler vasıtasıyla pekiştirilmesini,</li>
-          <li>Çalışanlarımızın bilgi ve beceri seviyesini arttırarak kaliteli ürün ve hizmet sağlamayı,</li>
-          <li>Müşterilerimize dürüstlük ilkesi çerçevesinde en iyi hizmeti sunmayı,</li>
-          <li>Bu amaçla uygulanabilir, gerekli tüm şartların yerine getirileceğini ve gerekli kaynakların bulunabilirliliğinin sağlanmasını taahhüt ederiz.</li>
-        </ul>
-        <p>Hizmet anlayışımız; sipariş, üretim ve sevkiyat aşamalarında müşteri memnuniyetini her an göz önünde tutmak ve bu memnuniyetin artması için yeni yöntemler aramak.</p>
-      </div>
+      <div class="kalite-text" set:html={kalitePolitikasi} />
       <figure class="kalite-img">
         <img src="https://assets.superpress.com.tr/TSEK-001.jpg" alt="TSEK Belgesi" loading="lazy" />
       </figure>
@@ -89,9 +70,9 @@ const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
 
   .kalite-layout { display: grid; grid-template-columns: 1fr 260px; gap: 32px; align-items: start; }
   .kalite-text p { font-size: 14.5px; color: var(--g600); line-height: 1.85; margin-bottom: 4px; }
-  .kalite-list { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
-  .kalite-list li { position: relative; padding-left: 22px; font-size: 14.5px; color: var(--g600); line-height: 1.7; }
-  .kalite-list li::before { content: '✓'; position: absolute; left: 0; top: 0; color: var(--blue); font-weight: 700; }
+  .kalite-text ul { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
+  .kalite-text li { position: relative; padding-left: 22px; font-size: 14.5px; color: var(--g600); line-height: 1.7; }
+  .kalite-text li::before { content: '✓'; position: absolute; left: 0; top: 0; color: var(--blue); font-weight: 700; }
   .kalite-img { border: 1px solid var(--g200); border-radius: 10px; overflow: hidden; background: #fff; padding: 10px; box-shadow: var(--sh); }
   .kalite-img img { width: 100%; height: auto; display: block; border-radius: 4px; }
 
