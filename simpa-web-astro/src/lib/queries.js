@@ -363,3 +363,10 @@ export async function getPageSection(db, brand, pageKey, sectionKey, lang) {
   if (!row) return null;
   return lang === 'en' ? row.content_en : row.content_tr;
 }
+
+/** Admin panelden yönetilen şirket künyesi (footer, header, WhatsApp butonu vb. için). */
+export async function getCompanyInfo(db, brand) {
+  const info = await db.prepare('SELECT * FROM company_info WHERE brand = ?').bind(brand).first();
+  const { results: socialLinks } = await db.prepare('SELECT platform, url FROM company_social_links WHERE brand = ? ORDER BY sort_order').bind(brand).all();
+  return { ...(info || {}), socialLinks };
+}
