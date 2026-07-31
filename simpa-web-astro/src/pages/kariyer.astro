@@ -6,18 +6,12 @@ const lang = 'tr';
 
 const licenseOptions = ['A1', 'A2', 'A', 'B', 'BE', 'C', 'CE', 'D', 'DE'];
 
-// TODO: Ari — bu liste yer tutucu, gerçek departman adlarıyla güncelle
 const departments = [
   'Üretim',
-  'Kalite Kontrol',
-  'AR-GE',
+  'Depo ve Sevkiyat',
+  'Kalite',
+  'Ön Muhasebe',
   'Satış ve Pazarlama',
-  'Muhasebe / Finans',
-  'İnsan Kaynakları',
-  'Lojistik / Depo',
-  'İdari İşler',
-  'Bilgi İşlem',
-  'Diğer',
 ];
 ---
 <Layout title="Kariyer — Simpa Elektrik" lang={lang}>
@@ -203,12 +197,10 @@ const departments = [
   const langRows = document.getElementById('langRows');
   const addLangBtn = document.getElementById('addLangBtn');
 
-  // Cinsiyet -> askerlik durumu koşullu alan
   genderSelect?.addEventListener('change', () => {
     militaryWrap.style.display = genderSelect.value === 'Erkek' ? 'block' : 'none';
   });
 
-  // Ehliyet: "Yok" işaretlenirse diğerleri kilitlenir
   licNone?.addEventListener('change', () => {
     if (licNone.checked) licCbs.forEach((cb) => { cb.checked = false; cb.disabled = true; });
     else licCbs.forEach((cb) => { cb.disabled = false; });
@@ -217,7 +209,6 @@ const departments = [
     if (cb.checked) licNone.checked = false;
   }));
 
-  // Diller: dinamik satır ekleme/çıkarma
   const levels = ['Başlangıç', 'Orta', 'İyi', 'İleri', 'Anadil'];
   function addLangRow() {
     const row = document.createElement('div');
