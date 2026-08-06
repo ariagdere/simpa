@@ -7,10 +7,7 @@ import { env } from 'cloudflare:workers';
 const lang = 'tr';
 const stats = await getHomeStats(env.DB);
 const varietyRounded = Math.floor(stats.varietyCount / 100) * 100;
-const [tarihce, kalitePolitikasi] = await Promise.all([
-  getPageSection(env.DB, 'Simpa', 'hakkimizda', 'ana_metin', lang),
-  getPageSection(env.DB, 'Simpa', 'hakkimizda', 'kalite_politikasi', lang),
-]);
+const tarihce = await getPageSection(env.DB, 'Simpa', 'hakkimizda', 'ana_metin', lang);
 ---
 <Layout title="Hakkımızda — Simpa Elektrik" lang={lang}>
   <div class="desktop-only">
@@ -49,16 +46,6 @@ const [tarihce, kalitePolitikasi] = await Promise.all([
       <Fragment set:html={tarihce} />
     </div>
   </div></div>
-
-  <div class="sec" style="background:var(--g50)"><div class="sec-in" style="max-width:960px">
-    <h2 style="font-family:var(--cond);font-size:26px;color:var(--navy);margin-bottom:20px">Kalite Politikamız</h2>
-    <div class="kalite-layout">
-      <div class="kalite-text" set:html={kalitePolitikasi} />
-      <figure class="kalite-img">
-        <img src="https://assets.superpress.com.tr/TSEK-001.jpg" alt="TSEK Belgesi" loading="lazy" />
-      </figure>
-    </div>
-  </div></div>
 </Layout>
 
 <style>
@@ -68,18 +55,8 @@ const [tarihce, kalitePolitikasi] = await Promise.all([
   :global(.tarihce-text p) { font-size: 14.5px; color: var(--g600); line-height: 1.85; margin-bottom: 14px; }
   :global(.tarihce-text p:last-child) { margin-bottom: 0; }
 
-  .kalite-layout { display: grid; grid-template-columns: 1fr 260px; gap: 32px; align-items: start; }
-  :global(.kalite-text p) { font-size: 14.5px; color: var(--g600); line-height: 1.85; margin-bottom: 4px; }
-  :global(.kalite-text ul) { list-style: none; padding: 0; margin: 16px 0; display: flex; flex-direction: column; gap: 10px; }
-  :global(.kalite-text li) { position: relative; padding-left: 22px; font-size: 14.5px; color: var(--g600); line-height: 1.7; }
-  :global(.kalite-text li::before) { content: '✓'; position: absolute; left: 0; top: 0; color: var(--blue); font-weight: 700; }
-  .kalite-img { border: 1px solid var(--g200); border-radius: 10px; overflow: hidden; background: #fff; padding: 10px; box-shadow: var(--sh); }
-  .kalite-img img { width: 100%; height: auto; display: block; border-radius: 4px; }
-
   @media (max-width: 860px) {
     .tarihce-img { float: none; width: 100%; margin: 0 0 16px 0; }
-    .kalite-layout { grid-template-columns: 1fr; }
-    .kalite-img { order: -1; max-width: 280px; margin: 0 auto; }
     .about-in { grid-template-columns: 1fr !important; gap: 28px !important; }
   }
 </style>
