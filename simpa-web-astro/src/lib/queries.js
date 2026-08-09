@@ -242,6 +242,7 @@ export async function getCategoriesWithCounts(db, lang) {
       `SELECT c.id, c.${nameCol} as name, c.slug, c.image_url,
               (SELECT COUNT(*) FROM products p WHERE p.category_id = c.id AND p.${titleCol} IS NOT NULL AND p.is_active = 1) as product_count
        FROM categories c
+       WHERE c.brand = 'Simpa' OR c.brand IS NULL
        ORDER BY c.sort_order`
     )
     .all();
