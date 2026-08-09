@@ -291,8 +291,12 @@ async function enrichWithRanges(db, products) {
 /** Bir kategorideki tüm ürünler, her biri için Kesit/Civata aralığı (varsa) hesaplanmış halde. */
 export async function getProductsInCategory(db, categorySlug, lang) {
   const titleCol = lang === 'en' ? 'title_en' : 'title_tr';
-  const category = await db.prepare('SELECT id, name_tr, name_en FROM categories WHERE slug = ?').bind(categorySlug).first();
+  const category = await db.prepare('SELECT id, name_tr, name_en, brand FROM categories WHERE slug = ?').bind(categorySlug).first();
   if (!category) return { category: null, products: [] };
+
+  // Kategori açıkça diğer markaya (Superpress) aitse bu sitede hiç gösterme
+  // (bkz. sohbet açıklaması — Superpress tarafındaki eşdeğer düzeltmeyle tutarlı olsun diye).
+  if (category.brand && category.brand !== 'Simpa') return { category: null, products: [] };
 
   const { results: products } = await db
     .prepare(
