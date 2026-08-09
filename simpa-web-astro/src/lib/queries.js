@@ -245,7 +245,7 @@ export async function getCategoriesWithCounts(db, lang) {
        ORDER BY c.sort_order`
     )
     .all();
-  return results.filter((c) => c.product_count > 0);
+  return results;
 }
 
 function formatRange(set, isNumeric) {
