@@ -211,12 +211,13 @@ export async function getVariantTable(db, productId, lang) {
 /** Künye kutusunda gösterilecek "Kablo Kesiti: 16-240mm²" / "Civata: M5-M16" gibi aralıklar. */
 export async function getKunyeRanges(db, productId, lang) {
   const { results } = await db
-    .prepare(`SELECT attr_key, attr_value FROM variant_attributes WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id = ?) AND attr_key IN ('KABLO_KESITI','CIVATA')`)
+    .prepare(`SELECT attr_key, attr_value FROM variant_attributes WHERE variant_id IN (SELECT id FROM product_variants WHERE product_id = ?) AND attr_key IN ('KABLO_KESITI','CIVATA','BAKIR_KALINLIGI')`)
     .bind(productId)
     .all();
 
   const kesitVals = [...new Set(results.filter((r) => r.attr_key === 'KABLO_KESITI').map((r) => r.attr_value))];
   const civataVals = [...new Set(results.filter((r) => r.attr_key === 'CIVATA').map((r) => r.attr_value))];
+  const bakirVals = [...new Set(results.filter((r) => r.attr_key === 'BAKIR_KALINLIGI').map((r) => r.attr_value))];
 
   const ranges = [];
   if (kesitVals.length) {
@@ -228,6 +229,13 @@ export async function getKunyeRanges(db, productId, lang) {
     const nums = civataVals.map((v) => ({ raw: v, n: parseInt(v.replace(/\D/g, ''), 10) })).filter((x) => !isNaN(x.n)).sort((a, b) => a.n - b.n);
     const val = nums.length > 1 ? `${nums[0].raw}–${nums[nums.length - 1].raw}` : nums[0].raw;
     ranges.push({ attr_key: 'CIVATA', label: lang === 'en' ? 'Bolt' : 'Civata', value: val });
+  }
+  if (bakirVals.length) {
+    // Kablo kesiti ile aynı ondalıklı-mm mantığı (bakır kalınlığı "1,5 mm." formatında,
+    // civata gibi harf+sayı karışık değil) — bkz. sohbet açıklaması.
+    const nums = bakirVals.map((v) => ({ raw: v, n: parseFloat(v.replace(',', '.')) })).filter((x) => !isNaN(x.n)).sort((a, b) => a.n - b.n);
+    const val = nums.length > 1 ? `${nums[0].raw}–${nums[nums.length - 1].raw}` : nums[0].raw;
+    ranges.push({ attr_key: 'BAKIR_KALINLIGI', label: lang === 'en' ? 'Copper Thickness' : 'Bakır Kalınlığı', value: val });
   }
   return ranges;
 }
