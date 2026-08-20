@@ -126,7 +126,7 @@ export async function getActiveHeroSlides(db, brand, lang) {
 export async function getProductOptionsList(db, lang) {
   const titleCol = lang === 'en' ? 'title_en' : 'title_tr';
   const { results } = await db
-    .prepare(`SELECT prod_code, ${titleCol} as title FROM products WHERE ${titleCol} IS NOT NULL AND is_active = 1 ORDER BY prod_code`)
+    .prepare(`SELECT prod_code, ${titleCol} as title FROM products WHERE ${titleCol} IS NOT NULL AND is_active = 1 ORDER BY sort_order`)
     .all();
   return results;
 }
@@ -171,7 +171,7 @@ export async function getVariantTable(db, productId, lang) {
   const labelCol = lang === 'en' ? 'label_en' : 'label_tr';
 
   const { results: variants } = await db
-    .prepare('SELECT id, variant_code FROM product_variants WHERE product_id = ? ORDER BY variant_code')
+    .prepare('SELECT id, variant_code FROM product_variants WHERE product_id = ? ORDER BY sort_order')
     .bind(productId)
     .all();
 
@@ -312,7 +312,7 @@ export async function getProductsInCategory(db, categorySlug, lang) {
               (SELECT file_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY is_primary DESC, sort_order LIMIT 1) as image
        FROM products p
        WHERE p.category_id = ? AND p.${titleCol} IS NOT NULL AND p.is_active = 1
-       ORDER BY p.prod_code`
+       ORDER BY p.sort_order`
     )
     .bind(category.id)
     .all();
@@ -329,7 +329,7 @@ export async function getAllProducts(db, lang) {
               (SELECT file_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY is_primary DESC, sort_order LIMIT 1) as image
        FROM products p
        WHERE p.${titleCol} IS NOT NULL AND p.is_active = 1
-       ORDER BY p.prod_code`
+       ORDER BY p.sort_order`
     )
     .all();
   return enrichWithRanges(db, products);
@@ -343,7 +343,8 @@ export async function getCompatibleProducts(db, productId, lang) {
               (SELECT file_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY is_primary DESC, sort_order LIMIT 1) as image
        FROM product_compatibility pcm
        JOIN products p ON p.id = pcm.compatible_product_id
-       WHERE pcm.product_id = ? AND p.${titleCol} IS NOT NULL AND p.is_active = 1`
+       WHERE pcm.product_id = ? AND p.${titleCol} IS NOT NULL AND p.is_active = 1
+       ORDER BY p.sort_order`
     )
     .bind(productId)
     .all();
@@ -360,7 +361,7 @@ export async function getRelatedProducts(db, categoryId, excludeProductId, lang,
               (SELECT file_url FROM product_images pi WHERE pi.product_id = p.id ORDER BY is_primary DESC, sort_order LIMIT 1) as image
        FROM products p
        WHERE p.category_id = ? AND p.id != ? AND p.${titleCol} IS NOT NULL AND p.is_active = 1
-       ORDER BY p.prod_code LIMIT ?`
+       ORDER BY p.sort_order LIMIT ?`
     )
     .bind(categoryId, excludeProductId, limit)
     .all();
