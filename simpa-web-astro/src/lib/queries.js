@@ -344,9 +344,9 @@ export async function getCompatibleProducts(db, productId, lang) {
        FROM product_compatibility pcm
        JOIN products p ON p.id = pcm.compatible_product_id
        WHERE pcm.product_id = ? AND p.${titleCol} IS NOT NULL AND p.is_active = 1
-       ORDER BY p.sort_order`
+       ORDER BY (CASE WHEN p.brand = (SELECT brand FROM products WHERE id = ?) THEN 0 ELSE 1 END), p.sort_order`
     )
-    .bind(productId)
+    .bind(productId, productId)
     .all();
   return enrichWithRanges(db, results);
 }
