@@ -820,19 +820,27 @@ const quickItems = [
       // böylece tablo hâlâ "yayılıyor", tek tek sütun genişlikleri de iki tabloda birebir aynı olur.
       const availableWidth = bodyWrap.clientWidth;
       const totalNatural = widths.reduce((a, b) => a + b, 0);
-      let finalWidths = widths;
+      let finalWidths = widths.slice();
       if (totalNatural > 0 && totalNatural < availableWidth) {
         const scale = availableWidth / totalNatural;
         finalWidths = widths.map((w) => w * scale);
       }
-      const totalWidth = Math.ceil(finalWidths.reduce((a, b) => a + b, 0));
+      // Sütun genişliklerini TEK TEK yuvarlamak (ör. Math.ceil) toplamla tutarsız hale
+      // gelebiliyor ve bu da "her şey görünüyor ama yine de ince bir scroll var" durumuna
+      // yol açıyordu — artık ham (yuvarlanmamış) değerleri kullanıp, tarayıcının kenarlık/
+      // piksel yuvarlamasına karşı en geniş sütundan 2px pay bırakıyoruz.
+      if (finalWidths.length > 0) {
+        const maxIdx = finalWidths.indexOf(Math.max(...finalWidths));
+        finalWidths[maxIdx] = Math.max(0, finalWidths[maxIdx] - 2);
+      }
+      const totalWidth = finalWidths.reduce((a, b) => a + b, 0);
 
       [headTable, bodyTable].forEach((tbl) => {
         tbl.querySelectorAll(':scope > colgroup').forEach((cg) => cg.remove());
         const colgroup = document.createElement('colgroup');
         finalWidths.forEach((w) => {
           const col = document.createElement('col');
-          col.style.width = Math.ceil(w) + 'px';
+          col.style.width = w + 'px';
           colgroup.appendChild(col);
         });
         tbl.insertBefore(colgroup, tbl.firstChild);
