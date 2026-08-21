@@ -332,7 +332,7 @@ nav{display:flex;gap:4px;margin-left:auto}
 .tbl-intro{font-size:14px;color:var(--g600);margin-bottom:16px;line-height:1.65;max-width:680px}
 .tbl-outer{position:relative}
 .tbl-head-clip{display:none;overflow:hidden;position:sticky;top:0;z-index:10;border-radius:8px 8px 0 0}
-.tbl-wrap{overflow-x:auto;border-radius:8px}
+.tbl-wrap{overflow-x:auto;border-radius:8px;border-bottom: 1px solid var(--g200);}
 .tbl{width:100%;border-collapse:collapse;font-size:13px}
 .tbl thead tr:first-child{background:var(--navy)}
 .tbl thead tr:last-child{background:#162540}
