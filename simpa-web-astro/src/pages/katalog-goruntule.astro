@@ -169,7 +169,7 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
       import('https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.min.mjs')
         .then((pdfjsLib) => {
           pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs';
-          return pdfjsLib.getDocument(pdfUrl).promise;
+          return pdfjsLib.getDocument(`/api/pdf-proxy?url=${encodeURIComponent(pdfUrl)}`).promise;
         })
         .then((doc) => {
           pdfDoc = doc;
