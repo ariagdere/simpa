@@ -46,10 +46,18 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
       font: 700 13px var(--font); text-decoration: none; flex-shrink: 0;
     }
     .pv-download:hover { background: var(--accent-l); }
-    #pvStage { min-height: calc(100vh - 52px); display: flex; flex-direction: column; align-items: center; padding: 20px 12px 48px; }
-    #pvStatus { color: var(--g400); font-size: 14px; margin-top: 60px; text-align: center; }
+    #pvStatus { color: var(--g400); font-size: 14px; margin: 60px auto; text-align: center; }
     #pvStatus.error { color: #B03A2E; max-width: 420px; line-height: 1.6; }
-    canvas#pvCanvas { display: none; max-width: 100%; height: auto; border-radius: 6px; box-shadow: var(--sh-lg); background: #fff; }
+    #pvPages { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 12px 64px; }
+    .pv-page {
+      position: relative; width: 100%; max-width: 900px; background: #fff;
+      border-radius: 4px; box-shadow: var(--sh-lg); overflow: hidden;
+    }
+    .pv-page canvas { display: block; width: 100%; height: 100%; }
+    .pv-page-label {
+      position: absolute; bottom: 8px; right: 10px; background: rgba(26,46,74,.75); color: #fff;
+      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 3px; pointer-events: none;
+    }
     @media (max-width: 640px) {
       .pv-toolbar { padding: 8px 10px; gap: 8px; }
       .pv-download { padding: 7px 10px; font-size: 12px; }
@@ -73,12 +81,11 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
     </div>
     {pdfUrl && <a id="pvDownload" href={pdfUrl} download class="pv-download">İndir</a>}
   </div>
-  <div id="pvStage">
-    <div id="pvStatus">Yükleniyor…</div>
-    <canvas id="pvCanvas"></canvas>
-  </div>
+  <div id="pvStatus">Yükleniyor…</div>
+  <div id="pvPages"></div>
 
   <script type="module" define:vars={{ pdfUrl, initialPage }}>
+    const PDFJS_VERSION = '4.0.379';
     const backLink = document.getElementById('pvBack');
     backLink.addEventListener('click', (e) => {
       e.preventDefault();
@@ -87,7 +94,7 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
     });
 
     const statusEl = document.getElementById('pvStatus');
-    const canvas = document.getElementById('pvCanvas');
+    const pagesEl = document.getElementById('pvPages');
 
     if (!pdfUrl) {
       statusEl.textContent = 'Görüntülenecek bir katalog belirtilmedi.';
@@ -99,84 +106,151 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
       const zoomOutBtn = document.getElementById('pvZoomOut');
       const pageInput = document.getElementById('pvPageInput');
       const pageCountEl = document.getElementById('pvPageCount');
-      const stage = document.getElementById('pvStage');
-      const ctx = canvas.getContext('2d');
 
       let pdfDoc = null;
-      let currentPage = initialPage;
       let zoomFactor = 1;
-      let renderTask = null;
+      let currentDisplayedPage = initialPage;
+      const pageWrappers = new Map();
+      const visibleRatios = new Map();
 
       function setControlsEnabled(enabled) {
         [prevBtn, nextBtn, zoomInBtn, zoomOutBtn, pageInput].forEach((el) => { el.disabled = !enabled; });
       }
 
-      async function renderPage(num) {
-        if (!pdfDoc) return;
-        num = Math.min(Math.max(1, num), pdfDoc.numPages);
-        currentPage = num;
-        pageInput.value = num;
-        prevBtn.disabled = num <= 1;
-        nextBtn.disabled = num >= pdfDoc.numPages;
+      function updateNavButtons() {
+        prevBtn.disabled = currentDisplayedPage <= 1;
+        nextBtn.disabled = currentDisplayedPage >= pdfDoc.numPages;
+        pageInput.value = currentDisplayedPage;
+      }
 
-        const page = await pdfDoc.getPage(num);
-        const naturalViewport = page.getViewport({ scale: 1 });
-        const containerWidth = Math.min(stage.clientWidth - 24, 900);
-        const fitScale = (containerWidth / naturalViewport.width) * zoomFactor;
-        const viewport = page.getViewport({ scale: fitScale });
-
-        const outputScale = window.devicePixelRatio || 1;
-        canvas.width = Math.floor(viewport.width * outputScale);
-        canvas.height = Math.floor(viewport.height * outputScale);
-        canvas.style.width = Math.floor(viewport.width) + 'px';
-        canvas.style.height = Math.floor(viewport.height) + 'px';
-
-        if (renderTask) { try { renderTask.cancel(); } catch (e) {} }
-        renderTask = page.render({
-          canvasContext: ctx,
-          viewport,
-          transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null,
-        });
+      async function renderPage(pageNum) {
+        const entry = pageWrappers.get(pageNum);
+        if (!entry || entry.rendered || entry.rendering) return;
+        entry.rendering = true;
         try {
-          await renderTask.promise;
-          canvas.style.display = 'block';
-          statusEl.style.display = 'none';
+          const page = await pdfDoc.getPage(pageNum);
+          const containerWidth = Math.min(entry.wrapper.clientWidth, 900);
+          const naturalViewport = page.getViewport({ scale: 1 });
+          const fitScale = (containerWidth / naturalViewport.width) * zoomFactor;
+          const viewport = page.getViewport({ scale: fitScale });
+
+          const outputScale = window.devicePixelRatio || 1;
+          const canvas = entry.canvas;
+          canvas.width = Math.floor(viewport.width * outputScale);
+          canvas.height = Math.floor(viewport.height * outputScale);
+          entry.wrapper.style.aspectRatio = `${viewport.width} / ${viewport.height}`;
+
+          const ctx = canvas.getContext('2d');
+          await page.render({
+            canvasContext: ctx,
+            viewport,
+            transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null,
+          }).promise;
+          entry.rendered = true;
         } catch (e) {
-          if (e && e.name === 'RenderingCancelledException') return;
-          throw e;
+          console.error('Sayfa render hatası', pageNum, e);
+        } finally {
+          entry.rendering = false;
         }
       }
 
-      prevBtn.addEventListener('click', () => renderPage(currentPage - 1));
-      nextBtn.addEventListener('click', () => renderPage(currentPage + 1));
+      function rerenderAllVisible() {
+        pageWrappers.forEach((entry, num) => {
+          entry.rendered = false;
+          if (visibleRatios.has(num)) renderPage(num);
+        });
+      }
+
+      function scrollToPage(num) {
+        num = Math.min(Math.max(1, num), pdfDoc.numPages);
+        const entry = pageWrappers.get(num);
+        if (entry) entry.wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+
+      const observer = new IntersectionObserver((entries) => {
+        for (const entry of entries) {
+          const num = Number(entry.target.dataset.pageNum);
+          if (entry.isIntersecting) {
+            visibleRatios.set(num, entry.intersectionRatio);
+            renderPage(num);
+          } else {
+            visibleRatios.delete(num);
+          }
+        }
+        if (visibleRatios.size > 0) {
+          let best = null, bestRatio = -1;
+          visibleRatios.forEach((ratio, num) => { if (ratio > bestRatio) { bestRatio = ratio; best = num; } });
+          if (best !== null && best !== currentDisplayedPage) {
+            currentDisplayedPage = best;
+            updateNavButtons();
+          }
+        }
+      }, { rootMargin: '600px 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
+
+      prevBtn.addEventListener('click', () => scrollToPage(currentDisplayedPage - 1));
+      nextBtn.addEventListener('click', () => scrollToPage(currentDisplayedPage + 1));
       pageInput.addEventListener('change', () => {
         const n = parseInt(pageInput.value, 10);
-        if (!isNaN(n)) renderPage(n);
+        if (!isNaN(n)) scrollToPage(n);
       });
-      zoomInBtn.addEventListener('click', () => { zoomFactor = Math.min(3, zoomFactor + 0.2); renderPage(currentPage); });
-      zoomOutBtn.addEventListener('click', () => { zoomFactor = Math.max(0.5, zoomFactor - 0.2); renderPage(currentPage); });
+      zoomInBtn.addEventListener('click', () => { zoomFactor = Math.min(3, zoomFactor + 0.2); rerenderAllVisible(); });
+      zoomOutBtn.addEventListener('click', () => { zoomFactor = Math.max(0.5, zoomFactor - 0.2); rerenderAllVisible(); });
       document.addEventListener('keydown', (e) => {
         if (e.target === pageInput) return;
-        if (e.key === 'ArrowLeft') renderPage(currentPage - 1);
-        if (e.key === 'ArrowRight') renderPage(currentPage + 1);
+        if (e.key === 'ArrowLeft') scrollToPage(currentDisplayedPage - 1);
+        if (e.key === 'ArrowRight') scrollToPage(currentDisplayedPage + 1);
       });
       let resizeT;
       window.addEventListener('resize', () => {
         clearTimeout(resizeT);
-        resizeT = setTimeout(() => renderPage(currentPage), 200);
+        resizeT = setTimeout(rerenderAllVisible, 250);
       });
 
-      import('https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.min.mjs')
+      const proxiedUrl = `/api/pdf-proxy?url=${encodeURIComponent(pdfUrl)}`;
+
+      import(`https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.min.mjs`)
         .then((pdfjsLib) => {
-          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs';
-          return pdfjsLib.getDocument(`/api/pdf-proxy?url=${encodeURIComponent(pdfUrl)}`).promise;
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`;
+          return pdfjsLib.getDocument({
+            url: proxiedUrl,
+            cMapUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/cmaps/`,
+            cMapPacked: true,
+            standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/standard_fonts/`,
+          }).promise;
         })
-        .then((doc) => {
+        .then(async (doc) => {
           pdfDoc = doc;
           pageCountEl.textContent = String(doc.numPages);
           pageInput.max = String(doc.numPages);
+
+          const firstPage = await doc.getPage(1);
+          const naturalViewport = firstPage.getViewport({ scale: 1 });
+          const ratio = `${naturalViewport.width} / ${naturalViewport.height}`;
+
+          for (let i = 1; i <= doc.numPages; i++) {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'pv-page';
+            wrapper.dataset.pageNum = String(i);
+            wrapper.style.aspectRatio = ratio;
+            const canvas = document.createElement('canvas');
+            wrapper.appendChild(canvas);
+            const label = document.createElement('span');
+            label.className = 'pv-page-label';
+            label.textContent = `${i} / ${doc.numPages}`;
+            wrapper.appendChild(label);
+            pagesEl.appendChild(wrapper);
+            pageWrappers.set(i, { wrapper, canvas, rendered: false, rendering: false });
+            observer.observe(wrapper);
+          }
+
+          statusEl.style.display = 'none';
           setControlsEnabled(true);
-          return renderPage(initialPage);
+          updateNavButtons();
+
+          requestAnimationFrame(() => {
+            const target = pageWrappers.get(initialPage);
+            if (target) target.wrapper.scrollIntoView({ block: 'start' });
+          });
         })
         .catch((err) => {
           console.error(err);
