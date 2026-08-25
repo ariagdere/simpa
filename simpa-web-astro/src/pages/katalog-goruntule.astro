@@ -1,4 +1,5 @@
 ---
+import '../styles/global.css';
 export const prerender = false;
 const params = Astro.url.searchParams;
 const pdfUrl = params.get('url') || '';
@@ -12,7 +13,6 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
   <meta name="robots" content="noindex" />
   <title>Katalog | Simpa Elektrik</title>
   <link rel="icon" href="/favicon.svg" />
-  <link rel="stylesheet" href="/styles/global.css" />
   <style>
     html, body { height: 100%; margin: 0; background: var(--g100); font-family: var(--font); }
     .pv-toolbar {
@@ -166,9 +166,9 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
         resizeT = setTimeout(() => renderPage(currentPage), 200);
       });
 
-      import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3/build/pdf.min.mjs')
+      import('https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.min.mjs')
         .then((pdfjsLib) => {
-          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3/build/pdf.worker.min.mjs';
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs';
           return pdfjsLib.getDocument(pdfUrl).promise;
         })
         .then((doc) => {
