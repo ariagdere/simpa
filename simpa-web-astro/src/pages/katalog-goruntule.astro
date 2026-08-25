@@ -16,7 +16,7 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
   <style>
     html, body { height: 100%; margin: 0; background: var(--g100); font-family: var(--font); }
     .pv-toolbar {
-      position: sticky; top: 0; z-index: 50;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
       background: var(--navy); color: #fff;
       display: flex; align-items: center; gap: 14px;
       padding: 10px 16px; box-shadow: var(--sh);
@@ -46,9 +46,9 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
       font: 700 13px var(--font); text-decoration: none; flex-shrink: 0;
     }
     .pv-download:hover { background: var(--accent-l); }
-    #pvStatus { color: var(--g400); font-size: 14px; margin: 60px auto; text-align: center; }
+    #pvStatus { color: var(--g400); font-size: 14px; margin: 60px auto; text-align: center; padding-top: 58px; }
     #pvStatus.error { color: #B03A2E; max-width: 420px; line-height: 1.6; }
-    #pvPages { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 12px 64px; }
+    #pvPages { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 12px 64px; padding-top: calc(20px + 58px); }
     .pv-page {
       position: relative; width: 100%; max-width: 900px; background: #fff;
       border-radius: 4px; box-shadow: var(--sh-lg); overflow: hidden;
@@ -93,6 +93,27 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
       else window.location.href = '/';
     });
 
+    const toolbarEl = document.querySelector('.pv-toolbar');
+    function applyToolbarOffset() {
+      const h = toolbarEl.getBoundingClientRect().height;
+      document.getElementById('pvStatus').style.paddingTop = `${h + 20}px`;
+      document.getElementById('pvPages').style.paddingTop = `${h + 20}px`;
+    }
+    applyToolbarOffset();
+    window.addEventListener('resize', applyToolbarOffset);
+
+    // Tüm sayfalar için TEK, sabit bir kaynaktan (pencere boyutu) hesaplanan ölçek —
+    // her sayfanın kendi wrapper'ından clientWidth okumak (önceki yaklaşım) sayfa
+    // sayfa küçük layout farklarına bağlı tutarsız zoom'a yol açıyordu.
+    function computeFitScale(naturalViewport, zoom) {
+      const toolbarH = toolbarEl.getBoundingClientRect().height;
+      const availableWidth = Math.min(window.innerWidth - 24, 900);
+      const availableHeight = window.innerHeight - toolbarH - 40;
+      const widthScale = availableWidth / naturalViewport.width;
+      const heightScale = availableHeight / naturalViewport.height;
+      return Math.min(widthScale, heightScale) * zoom;
+    }
+
     const statusEl = document.getElementById('pvStatus');
     const pagesEl = document.getElementById('pvPages');
 
@@ -129,9 +150,8 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
         entry.rendering = true;
         try {
           const page = await pdfDoc.getPage(pageNum);
-          const containerWidth = Math.min(entry.wrapper.clientWidth, 900);
           const naturalViewport = page.getViewport({ scale: 1 });
-          const fitScale = (containerWidth / naturalViewport.width) * zoomFactor;
+          const fitScale = computeFitScale(naturalViewport, zoomFactor);
           const viewport = page.getViewport({ scale: fitScale });
 
           const outputScale = window.devicePixelRatio || 1;
