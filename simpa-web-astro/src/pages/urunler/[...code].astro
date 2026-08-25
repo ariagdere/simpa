@@ -53,7 +53,7 @@ const WHATSAPP_URL = `https://api.whatsapp.com/send/?phone=${companyInfo.whatsap
 // Bu site her zaman Simpa kataloğuna (TR) bağlanır — ürünün kendi markasından bağımsız,
 // çünkü Superpress markalı ürünler de Simpa kataloğunda (SP- serisi) yer alıyor.
 const catalogPage = product.catalog_page_tr;
-const catalogHref = keyDocs.catalogUrl ? keyDocs.catalogUrl + (catalogPage ? `#page=${catalogPage}` : '') : null;
+const catalogHref = keyDocs.catalogUrl ? `/katalog-goruntule?url=${encodeURIComponent(keyDocs.catalogUrl)}${catalogPage ? `&page=${catalogPage}` : ''}` : null;
 
 // Sıkma formu (hexagon.jpeg) görselleri için özel başlık — bkz. sohbet açıklaması
 const isCrimpForm = drawingUrl ? drawingUrl.toLowerCase().includes('hexagon') : false;
