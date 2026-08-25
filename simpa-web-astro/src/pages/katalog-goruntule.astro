@@ -4,6 +4,8 @@ export const prerender = false;
 const params = Astro.url.searchParams;
 const pdfUrl = params.get('url') || '';
 const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
+const proxiedUrl = pdfUrl ? `${Astro.url.origin}/api/pdf-proxy?url=${encodeURIComponent(pdfUrl)}` : '';
+const viewerSrc = proxiedUrl ? `/pdfjs/web/viewer.html?file=${encodeURIComponent(proxiedUrl)}#page=${initialPage}` : '';
 ---
 <!DOCTYPE html>
 <html lang="tr">
@@ -14,294 +16,38 @@ const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
   <title>Katalog | Simpa Elektrik</title>
   <link rel="icon" href="/favicon.svg" />
   <style>
-    html, body { height: 100%; margin: 0; background: var(--g100); font-family: var(--font); }
-    .pv-toolbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 50;
-      background: var(--navy); color: #fff;
-      display: flex; align-items: center; gap: 14px;
-      padding: 10px 16px; box-shadow: var(--sh);
+    html, body { height: 100%; margin: 0; font-family: var(--font); }
+    .pv-bar {
+      background: var(--navy); color: #fff; padding: 10px 16px;
+      display: flex; align-items: center; gap: 10px; box-shadow: var(--sh);
     }
-    .pv-back {
+    .pv-bar a {
       background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
       color: #fff; border-radius: 5px; padding: 7px 12px; font: 600 13px var(--font);
-      cursor: pointer; text-decoration: none; flex-shrink: 0;
+      text-decoration: none;
     }
-    .pv-back:hover { background: rgba(255,255,255,.18); }
-    .pv-title { font-family: var(--cond); font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; display: none; }
-    .pv-nav, .pv-zoom { display: flex; align-items: center; gap: 6px; margin-left: auto; }
-    .pv-toolbar button:not(.pv-back) {
-      width: 30px; height: 30px; border-radius: 5px; border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.08); color: #fff; font-size: 16px; line-height: 1; cursor: pointer;
-    }
-    .pv-toolbar button:not(.pv-back):hover { background: rgba(255,255,255,.18); }
-    .pv-toolbar button:disabled { opacity: .35; cursor: default; }
-    .pv-toolbar button:disabled:hover { background: rgba(255,255,255,.08); }
-    #pvPageInput {
-      width: 44px; text-align: center; border-radius: 5px; border: 1px solid rgba(255,255,255,.18);
-      background: rgba(255,255,255,.08); color: #fff; font: 600 13px var(--font); padding: 6px 2px;
-    }
-    .pv-of { font-size: 13px; color: rgba(255,255,255,.65); white-space: nowrap; }
-    .pv-download {
-      background: var(--accent); color: var(--navy); border-radius: 5px; padding: 7px 14px;
-      font: 700 13px var(--font); text-decoration: none; flex-shrink: 0;
-    }
-    .pv-download:hover { background: var(--accent-l); }
-    #pvStatus { color: var(--g400); font-size: 14px; margin: 60px auto; text-align: center; padding-top: 58px; }
-    #pvStatus.error { color: #B03A2E; max-width: 420px; line-height: 1.6; }
-    #pvPages { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px 12px 64px; padding-top: calc(20px + 58px); --pv-zoom: 1; --pv-base-width: 900px; }
-    .pv-page {
-      position: relative; width: calc(var(--pv-base-width) * var(--pv-zoom)); max-width: 96vw;
-      background: #fff; border-radius: 4px; box-shadow: var(--sh-lg); overflow: hidden;
-    }
-    .pv-page canvas { display: block; width: 100%; height: auto; }
-    .pv-page-label {
-      position: absolute; bottom: 8px; right: 10px; background: rgba(26,46,74,.75); color: #fff;
-      font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 3px; pointer-events: none;
-    }
-    @media (max-width: 640px) {
-      .pv-toolbar { padding: 8px 10px; gap: 8px; }
-      .pv-download { padding: 7px 10px; font-size: 12px; }
-    }
-    @media (min-width: 860px) { .pv-title { display: block; } }
+    .pv-bar a:hover { background: rgba(255,255,255,.18); }
+    .pv-bar span { font-family: var(--cond); font-size: 15px; font-weight: 700; }
+    iframe { width: 100%; height: calc(100vh - 50px); border: none; display: block; }
+    .pv-empty { padding: 80px 20px; text-align: center; color: var(--g400); }
   </style>
 </head>
 <body>
-  <div class="pv-toolbar">
-    <a href="#" class="pv-back" id="pvBack">← Geri</a>
-    <span class="pv-title">Simpa Elektrik Kataloğu</span>
-    <div class="pv-nav">
-      <button id="pvPrev" aria-label="Önceki sayfa" disabled>‹</button>
-      <input type="number" id="pvPageInput" min="1" value={initialPage} disabled />
-      <span class="pv-of">/ <span id="pvPageCount">–</span></span>
-      <button id="pvNext" aria-label="Sonraki sayfa" disabled>›</button>
-    </div>
-    <div class="pv-zoom">
-      <button id="pvZoomOut" aria-label="Uzaklaştır" disabled>−</button>
-      <button id="pvZoomIn" aria-label="Yakınlaştır" disabled>+</button>
-    </div>
-    {pdfUrl && <a id="pvDownload" href={pdfUrl} download class="pv-download">İndir</a>}
+  <div class="pv-bar">
+    <a href="#" id="pvBack">← Geri</a>
+    <span>Simpa Elektrik Kataloğu</span>
   </div>
-  <div id="pvStatus">Yükleniyor…</div>
-  <div id="pvPages"></div>
-
-  <script type="module" define:vars={{ pdfUrl, initialPage }}>
-    const PDFJS_VERSION = '4.0.379';
-    const backLink = document.getElementById('pvBack');
-    backLink.addEventListener('click', (e) => {
+  {viewerSrc ? (
+    <iframe src={viewerSrc} title="Katalog"></iframe>
+  ) : (
+    <p class="pv-empty">Görüntülenecek bir katalog belirtilmedi.</p>
+  )}
+  <script>
+    document.getElementById('pvBack').addEventListener('click', (e) => {
       e.preventDefault();
       if (window.history.length > 1) window.history.back();
       else window.location.href = '/';
     });
-
-    const toolbarEl = document.querySelector('.pv-toolbar');
-    const pagesElGlobal = document.getElementById('pvPages');
-    function applyToolbarOffset() {
-      const h = toolbarEl.getBoundingClientRect().height;
-      document.getElementById('pvStatus').style.paddingTop = `${h + 20}px`;
-      pagesElGlobal.style.paddingTop = `${h + 20}px`;
-    }
-    applyToolbarOffset();
-    window.addEventListener('resize', applyToolbarOffset);
-
-    // Zoom'un GERÇEKTEN bir etkisi olması için: sabit bir taban genişlik (pencereye göre,
-    // bir kere hesaplanır) tutup zoom'u bunun üzerine çarpıyoruz. Önceki "width:100%" +
-    // "max-width: 900px*zoom" yaklaşımı, ekran zaten 900px'ten darsa (mobilde her zaman)
-    // width:100% olduğu için max-width'i büyütmenin hiçbir görünür etkisi olmuyordu.
-    function applyBaseWidth() {
-      const avail = Math.min(window.innerWidth - 24, 900);
-      pagesElGlobal.style.setProperty('--pv-base-width', `${avail}px`);
-    }
-    applyBaseWidth();
-    window.addEventListener('resize', applyBaseWidth);
-
-    const statusEl = document.getElementById('pvStatus');
-    const pagesEl = document.getElementById('pvPages');
-
-    if (!pdfUrl) {
-      statusEl.textContent = 'Görüntülenecek bir katalog belirtilmedi.';
-      statusEl.classList.add('error');
-    } else {
-      const prevBtn = document.getElementById('pvPrev');
-      const nextBtn = document.getElementById('pvNext');
-      const zoomInBtn = document.getElementById('pvZoomIn');
-      const zoomOutBtn = document.getElementById('pvZoomOut');
-      const pageInput = document.getElementById('pvPageInput');
-      const pageCountEl = document.getElementById('pvPageCount');
-
-      let pdfDoc = null;
-      let zoomFactor = 1;
-      let currentDisplayedPage = initialPage;
-      const pageWrappers = new Map();
-      const visibleRatios = new Map();
-
-      function setControlsEnabled(enabled) {
-        [prevBtn, nextBtn, zoomInBtn, zoomOutBtn, pageInput].forEach((el) => { el.disabled = !enabled; });
-      }
-
-      function updateNavButtons() {
-        prevBtn.disabled = currentDisplayedPage <= 1;
-        nextBtn.disabled = currentDisplayedPage >= pdfDoc.numPages;
-        pageInput.value = currentDisplayedPage;
-      }
-
-      // Her sayfa BİR KERE, cömert sabit bir çözünürlükte render edilir. Zoom artık
-      // yeniden render tetiklemiyor — boyutlandırma tamamen CSS'e (width:100%;height:auto
-      // + #pvPages'teki --pv-zoom değişkeni) bırakıldı. Böylece tüm sayfalar HER ZAMAN
-      // aynı, tek bir CSS kuralını okuyor; sayfa sayfa tutarsızlık mimarî olarak imkansız.
-      // Aynı anda çok fazla sayfa render etmeye çalışmak (özellikle mobilde) tarayıcıyı
-      // zorluyor, render'lar birbirini geciktirip "yeniden yükleniyormuş" gibi bir izlenim
-      // yaratıyordu. Kuyruğa alıp aynı anda en fazla 2 render çalıştırıyoruz.
-      const MAX_CONCURRENT_RENDERS = 2;
-      let activeRenders = 0;
-      const renderQueue = [];
-      function processRenderQueue() {
-        while (activeRenders < MAX_CONCURRENT_RENDERS && renderQueue.length > 0) {
-          const num = renderQueue.shift();
-          const entry = pageWrappers.get(num);
-          if (!entry || entry.rendered || entry.rendering) continue;
-          activeRenders++;
-          renderPage(num).finally(() => {
-            activeRenders--;
-            processRenderQueue();
-          });
-        }
-      }
-      function scheduleRender(pageNum) {
-        const entry = pageWrappers.get(pageNum);
-        if (!entry || entry.rendered || entry.rendering || renderQueue.includes(pageNum)) return;
-        renderQueue.push(pageNum);
-        processRenderQueue();
-      }
-
-      async function renderPage(pageNum) {
-        const entry = pageWrappers.get(pageNum);
-        if (!entry || entry.rendered || entry.rendering) return;
-        entry.rendering = true;
-        try {
-          const page = await pdfDoc.getPage(pageNum);
-          const naturalViewport = page.getViewport({ scale: 1 });
-          // Yüksek dpr'li (3x gibi) mobil cihazlarda gereğinden büyük canvas oluşturmamak
-          // için dpr'yi 2 ile sınırlıyoruz — görsel fark azdır, bellek/performans farkı büyüktür.
-          const dpr = Math.min(window.devicePixelRatio || 1, 2);
-          const targetCssWidth = Math.max(naturalViewport.width, 1000);
-          const renderScale = (targetCssWidth / naturalViewport.width) * dpr;
-          const viewport = page.getViewport({ scale: renderScale });
-
-          const canvas = entry.canvas;
-          canvas.width = Math.floor(viewport.width);
-          canvas.height = Math.floor(viewport.height);
-
-          const ctx = canvas.getContext('2d');
-          await page.render({ canvasContext: ctx, viewport }).promise;
-          entry.rendered = true;
-        } catch (e) {
-          console.error('Sayfa render hatası', pageNum, e);
-        } finally {
-          entry.rendering = false;
-        }
-      }
-
-      function scrollToPage(num) {
-        num = Math.min(Math.max(1, num), pdfDoc.numPages);
-        const entry = pageWrappers.get(num);
-        if (entry) entry.wrapper.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-
-      const observer = new IntersectionObserver((entries) => {
-        for (const entry of entries) {
-          const num = Number(entry.target.dataset.pageNum);
-          if (entry.isIntersecting) {
-            visibleRatios.set(num, entry.intersectionRatio);
-            scheduleRender(num);
-          } else {
-            visibleRatios.delete(num);
-          }
-        }
-        if (visibleRatios.size > 0) {
-          let best = null, bestRatio = -1;
-          visibleRatios.forEach((ratio, num) => { if (ratio > bestRatio) { bestRatio = ratio; best = num; } });
-          if (best !== null && best !== currentDisplayedPage) {
-            currentDisplayedPage = best;
-            updateNavButtons();
-          }
-        }
-      }, { rootMargin: '300px 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
-
-      prevBtn.addEventListener('click', () => scrollToPage(currentDisplayedPage - 1));
-      nextBtn.addEventListener('click', () => scrollToPage(currentDisplayedPage + 1));
-      pageInput.addEventListener('change', () => {
-        const n = parseInt(pageInput.value, 10);
-        if (!isNaN(n)) scrollToPage(n);
-      });
-      zoomInBtn.addEventListener('click', () => {
-        zoomFactor = Math.min(2.5, Math.round((zoomFactor + 0.15) * 100) / 100);
-        pagesEl.style.setProperty('--pv-zoom', zoomFactor);
-      });
-      zoomOutBtn.addEventListener('click', () => {
-        zoomFactor = Math.max(0.5, Math.round((zoomFactor - 0.15) * 100) / 100);
-        pagesEl.style.setProperty('--pv-zoom', zoomFactor);
-      });
-      document.addEventListener('keydown', (e) => {
-        if (e.target === pageInput) return;
-        if (e.key === 'ArrowLeft') scrollToPage(currentDisplayedPage - 1);
-        if (e.key === 'ArrowRight') scrollToPage(currentDisplayedPage + 1);
-      });
-
-      const proxiedUrl = `/api/pdf-proxy?url=${encodeURIComponent(pdfUrl)}`;
-
-      import(`https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.min.mjs`)
-        .then((pdfjsLib) => {
-          pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/build/pdf.worker.min.mjs`;
-          return pdfjsLib.getDocument({
-            url: proxiedUrl,
-            cMapUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/cmaps/`,
-            cMapPacked: true,
-            standardFontDataUrl: `https://unpkg.com/pdfjs-dist@${PDFJS_VERSION}/standard_fonts/`,
-          }).promise;
-        })
-        .then(async (doc) => {
-          pdfDoc = doc;
-          pageCountEl.textContent = String(doc.numPages);
-          pageInput.max = String(doc.numPages);
-
-          const firstPage = await doc.getPage(1);
-          const naturalViewport = firstPage.getViewport({ scale: 1 });
-          // Sadece ilk scroll konumunun kabaca doğru yerde başlaması için bir tahmin —
-          // min-height olduğu için gerçek render bundan kısa/uzun çıksa bile KIRPILMA riski yok.
-          const estAvailWidth = Math.min(window.innerWidth - 24, 900);
-          const estHeight = `${Math.floor((estAvailWidth / naturalViewport.width) * naturalViewport.height)}px`;
-
-          for (let i = 1; i <= doc.numPages; i++) {
-            const wrapper = document.createElement('div');
-            wrapper.className = 'pv-page';
-            wrapper.dataset.pageNum = String(i);
-            wrapper.style.minHeight = estHeight;
-            const canvas = document.createElement('canvas');
-            wrapper.appendChild(canvas);
-            const label = document.createElement('span');
-            label.className = 'pv-page-label';
-            label.textContent = `${i} / ${doc.numPages}`;
-            wrapper.appendChild(label);
-            pagesEl.appendChild(wrapper);
-            pageWrappers.set(i, { wrapper, canvas, rendered: false, rendering: false });
-            observer.observe(wrapper);
-          }
-
-          statusEl.style.display = 'none';
-          setControlsEnabled(true);
-          updateNavButtons();
-
-          requestAnimationFrame(() => {
-            const target = pageWrappers.get(initialPage);
-            if (target) target.wrapper.scrollIntoView({ block: 'start' });
-          });
-        })
-        .catch((err) => {
-          console.error(err);
-          statusEl.textContent = 'Katalog yüklenirken bir sorun oluştu. Aşağıdaki bağlantıdan indirebilirsiniz.';
-          statusEl.classList.add('error');
-        });
-    }
   </script>
 </body>
 </html>
