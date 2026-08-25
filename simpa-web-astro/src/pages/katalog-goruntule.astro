@@ -1,0 +1,189 @@
+---
+export const prerender = false;
+const params = Astro.url.searchParams;
+const pdfUrl = params.get('url') || '';
+const initialPage = Math.max(1, parseInt(params.get('page') || '1', 10) || 1);
+---
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <title>Katalog | Simpa Elektrik</title>
+  <link rel="icon" href="/favicon.svg" />
+  <link rel="stylesheet" href="/styles/global.css" />
+  <style>
+    html, body { height: 100%; margin: 0; background: var(--g100); font-family: var(--font); }
+    .pv-toolbar {
+      position: sticky; top: 0; z-index: 50;
+      background: var(--navy); color: #fff;
+      display: flex; align-items: center; gap: 14px;
+      padding: 10px 16px; box-shadow: var(--sh);
+    }
+    .pv-back {
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.18);
+      color: #fff; border-radius: 5px; padding: 7px 12px; font: 600 13px var(--font);
+      cursor: pointer; text-decoration: none; flex-shrink: 0;
+    }
+    .pv-back:hover { background: rgba(255,255,255,.18); }
+    .pv-title { font-family: var(--cond); font-size: 15px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex-shrink: 1; min-width: 0; display: none; }
+    .pv-nav, .pv-zoom { display: flex; align-items: center; gap: 6px; margin-left: auto; }
+    .pv-toolbar button:not(.pv-back) {
+      width: 30px; height: 30px; border-radius: 5px; border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08); color: #fff; font-size: 16px; line-height: 1; cursor: pointer;
+    }
+    .pv-toolbar button:not(.pv-back):hover { background: rgba(255,255,255,.18); }
+    .pv-toolbar button:disabled { opacity: .35; cursor: default; }
+    .pv-toolbar button:disabled:hover { background: rgba(255,255,255,.08); }
+    #pvPageInput {
+      width: 44px; text-align: center; border-radius: 5px; border: 1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.08); color: #fff; font: 600 13px var(--font); padding: 6px 2px;
+    }
+    .pv-of { font-size: 13px; color: rgba(255,255,255,.65); white-space: nowrap; }
+    .pv-download {
+      background: var(--accent); color: var(--navy); border-radius: 5px; padding: 7px 14px;
+      font: 700 13px var(--font); text-decoration: none; flex-shrink: 0;
+    }
+    .pv-download:hover { background: var(--accent-l); }
+    #pvStage { min-height: calc(100vh - 52px); display: flex; flex-direction: column; align-items: center; padding: 20px 12px 48px; }
+    #pvStatus { color: var(--g400); font-size: 14px; margin-top: 60px; text-align: center; }
+    #pvStatus.error { color: #B03A2E; max-width: 420px; line-height: 1.6; }
+    canvas#pvCanvas { display: none; max-width: 100%; height: auto; border-radius: 6px; box-shadow: var(--sh-lg); background: #fff; }
+    @media (max-width: 640px) {
+      .pv-toolbar { padding: 8px 10px; gap: 8px; }
+      .pv-download { padding: 7px 10px; font-size: 12px; }
+    }
+    @media (min-width: 860px) { .pv-title { display: block; } }
+  </style>
+</head>
+<body>
+  <div class="pv-toolbar">
+    <a href="#" class="pv-back" id="pvBack">← Geri</a>
+    <span class="pv-title">Simpa Elektrik Kataloğu</span>
+    <div class="pv-nav">
+      <button id="pvPrev" aria-label="Önceki sayfa" disabled>‹</button>
+      <input type="number" id="pvPageInput" min="1" value={initialPage} disabled />
+      <span class="pv-of">/ <span id="pvPageCount">–</span></span>
+      <button id="pvNext" aria-label="Sonraki sayfa" disabled>›</button>
+    </div>
+    <div class="pv-zoom">
+      <button id="pvZoomOut" aria-label="Uzaklaştır" disabled>−</button>
+      <button id="pvZoomIn" aria-label="Yakınlaştır" disabled>+</button>
+    </div>
+    {pdfUrl && <a id="pvDownload" href={pdfUrl} download class="pv-download">İndir</a>}
+  </div>
+  <div id="pvStage">
+    <div id="pvStatus">Yükleniyor…</div>
+    <canvas id="pvCanvas"></canvas>
+  </div>
+
+  <script type="module" define:vars={{ pdfUrl, initialPage }}>
+    const backLink = document.getElementById('pvBack');
+    backLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (window.history.length > 1) window.history.back();
+      else window.location.href = '/';
+    });
+
+    const statusEl = document.getElementById('pvStatus');
+    const canvas = document.getElementById('pvCanvas');
+
+    if (!pdfUrl) {
+      statusEl.textContent = 'Görüntülenecek bir katalog belirtilmedi.';
+      statusEl.classList.add('error');
+    } else {
+      const prevBtn = document.getElementById('pvPrev');
+      const nextBtn = document.getElementById('pvNext');
+      const zoomInBtn = document.getElementById('pvZoomIn');
+      const zoomOutBtn = document.getElementById('pvZoomOut');
+      const pageInput = document.getElementById('pvPageInput');
+      const pageCountEl = document.getElementById('pvPageCount');
+      const stage = document.getElementById('pvStage');
+      const ctx = canvas.getContext('2d');
+
+      let pdfDoc = null;
+      let currentPage = initialPage;
+      let zoomFactor = 1;
+      let renderTask = null;
+
+      function setControlsEnabled(enabled) {
+        [prevBtn, nextBtn, zoomInBtn, zoomOutBtn, pageInput].forEach((el) => { el.disabled = !enabled; });
+      }
+
+      async function renderPage(num) {
+        if (!pdfDoc) return;
+        num = Math.min(Math.max(1, num), pdfDoc.numPages);
+        currentPage = num;
+        pageInput.value = num;
+        prevBtn.disabled = num <= 1;
+        nextBtn.disabled = num >= pdfDoc.numPages;
+
+        const page = await pdfDoc.getPage(num);
+        const naturalViewport = page.getViewport({ scale: 1 });
+        const containerWidth = Math.min(stage.clientWidth - 24, 900);
+        const fitScale = (containerWidth / naturalViewport.width) * zoomFactor;
+        const viewport = page.getViewport({ scale: fitScale });
+
+        const outputScale = window.devicePixelRatio || 1;
+        canvas.width = Math.floor(viewport.width * outputScale);
+        canvas.height = Math.floor(viewport.height * outputScale);
+        canvas.style.width = Math.floor(viewport.width) + 'px';
+        canvas.style.height = Math.floor(viewport.height) + 'px';
+
+        if (renderTask) { try { renderTask.cancel(); } catch (e) {} }
+        renderTask = page.render({
+          canvasContext: ctx,
+          viewport,
+          transform: outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null,
+        });
+        try {
+          await renderTask.promise;
+          canvas.style.display = 'block';
+          statusEl.style.display = 'none';
+        } catch (e) {
+          if (e && e.name === 'RenderingCancelledException') return;
+          throw e;
+        }
+      }
+
+      prevBtn.addEventListener('click', () => renderPage(currentPage - 1));
+      nextBtn.addEventListener('click', () => renderPage(currentPage + 1));
+      pageInput.addEventListener('change', () => {
+        const n = parseInt(pageInput.value, 10);
+        if (!isNaN(n)) renderPage(n);
+      });
+      zoomInBtn.addEventListener('click', () => { zoomFactor = Math.min(3, zoomFactor + 0.2); renderPage(currentPage); });
+      zoomOutBtn.addEventListener('click', () => { zoomFactor = Math.max(0.5, zoomFactor - 0.2); renderPage(currentPage); });
+      document.addEventListener('keydown', (e) => {
+        if (e.target === pageInput) return;
+        if (e.key === 'ArrowLeft') renderPage(currentPage - 1);
+        if (e.key === 'ArrowRight') renderPage(currentPage + 1);
+      });
+      let resizeT;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeT);
+        resizeT = setTimeout(() => renderPage(currentPage), 200);
+      });
+
+      import('https://cdn.jsdelivr.net/npm/pdfjs-dist@3/build/pdf.min.mjs')
+        .then((pdfjsLib) => {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@3/build/pdf.worker.min.mjs';
+          return pdfjsLib.getDocument(pdfUrl).promise;
+        })
+        .then((doc) => {
+          pdfDoc = doc;
+          pageCountEl.textContent = String(doc.numPages);
+          pageInput.max = String(doc.numPages);
+          setControlsEnabled(true);
+          return renderPage(initialPage);
+        })
+        .catch((err) => {
+          console.error(err);
+          statusEl.textContent = 'Katalog yüklenirken bir sorun oluştu. Aşağıdaki bağlantıdan indirebilirsiniz.';
+          statusEl.classList.add('error');
+        });
+    }
+  </script>
+</body>
+</html>
